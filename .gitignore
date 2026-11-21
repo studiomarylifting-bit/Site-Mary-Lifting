@@ -1,0 +1,21 @@
+node_modules/
+.next/
+out/
+coverage/
+playwright-report/
+test-results/
+*.tsbuildinfo
+next-env.d.ts
+
+# Segredos
+.env
+.env.*
+!.env.example
+*.pem
+.ssh/
+
+# Supabase local
+supabase/.branches/
+supabase/.temp/
+
+.DS_Store
