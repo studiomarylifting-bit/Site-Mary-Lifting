@@ -30,13 +30,13 @@ export default async function MyTicketsPage() {
       </header>
 
       {!tickets?.length ? (
-        <p className="border border-dashed border-line p-10 text-center text-cocoa">Você ainda não abriu nenhuma solicitação.</p>
+        <p className="rounded-card border border-dashed border-stroke/60 p-10 text-center text-cocoa">Você ainda não abriu nenhuma solicitação.</p>
       ) : (
         <ul className="space-y-4">
           {tickets.map((t) => {
             const msgs = (t.sac_messages ?? []).filter((m) => !m.internal).sort((a, b) => a.created_at.localeCompare(b.created_at));
             return (
-              <li key={t.id} className="space-y-4 border border-line bg-ivory p-6">
+              <li key={t.id} className="space-y-4 rounded-card bg-ivory shadow-soft p-6">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <p className="text-xs uppercase tracking-[0.2em] text-rose-deep">{t.protocol} · {ticketTypeLabels[t.type as keyof typeof ticketTypeLabels]}</p>
@@ -44,7 +44,7 @@ export default async function MyTicketsPage() {
                   </div>
                   <TicketStatusBadge status={t.status} />
                 </div>
-                <p className="text-xs text-cocoa/70">Aberta em {new Date(t.created_at).toLocaleString("pt-BR")}</p>
+                <p className="text-xs text-cocoa/85">Aberta em {new Date(t.created_at).toLocaleString("pt-BR")}</p>
                 {msgs.length > 0 && (
                   <ul className="space-y-3 border-t border-line pt-4">
                     {msgs.map((m) => (

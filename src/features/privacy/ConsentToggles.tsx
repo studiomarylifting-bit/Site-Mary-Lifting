@@ -31,14 +31,14 @@ export function ConsentToggles({ items }: { items: Item[] }) {
       {msg && <Alert tone={msg.tone}>{msg.text}</Alert>}
       <ul className="space-y-4">
         {items.map((i) => (
-          <li key={i.kind} className="border border-line bg-ivory p-5">
+          <li key={i.kind} className="rounded-card bg-ivory shadow-soft p-5">
             <CheckField id={i.kind} label={i.text} checked={state[i.kind]} disabled={busy === i.kind}
               onChange={(e) => toggle(i.kind, e.target.checked)} />
-            {i.at && <p className="mt-2 pl-8 text-xs text-cocoa/70">Último registro: {new Date(i.at).toLocaleString("pt-BR")}</p>}
+            {i.at && <p className="mt-2 pl-8 text-xs text-cocoa/85">Último registro: {new Date(i.at).toLocaleString("pt-BR")}</p>}
           </li>
         ))}
       </ul>
-      <p className="text-xs text-cocoa/70">Estas autorizações são opcionais, independentes entre si e não condicionam o atendimento.</p>
+      <p className="text-xs text-cocoa/85">Estas autorizações são opcionais, independentes entre si e não condicionam o atendimento.</p>
     </div>
   );
 }

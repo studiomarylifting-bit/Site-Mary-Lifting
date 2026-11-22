@@ -35,7 +35,7 @@ export default async function AdminDashboard() {
       <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {stats.map((s) => (
           <li key={s.label}>
-            <Link href={s.href} className="block h-full border border-line bg-ivory p-5 transition-colors hover:bg-nude/50">
+            <Link href={s.href} className="block h-full rounded-card bg-ivory shadow-soft p-5 transition duration-300 hover:-translate-y-0.5 hover:shadow-lift motion-reduce:transition-none motion-reduce:hover:translate-y-0">
               <p className="font-display text-5xl text-espresso">{s.value}</p>
               <p className="mt-2 text-xs uppercase tracking-[0.15em] text-rose-deep">{s.label}</p>
             </Link>

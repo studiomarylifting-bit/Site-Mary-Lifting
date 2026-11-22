@@ -50,7 +50,7 @@ export default async function FeedbackPage() {
           <ul className="columns-1 gap-6 md:columns-2 lg:columns-3 [&>li]:mb-6 [&>li]:break-inside-avoid">
             {items.map((f) => (
               <li key={f.id}>
-                <figure className="space-y-4 border border-line bg-ivory p-6">
+                <figure className="space-y-4 rounded-card bg-ivory shadow-soft p-6">
                   <Stars value={f.rating} />
                   <blockquote className="text-cocoa leading-relaxed">{f.comment}</blockquote>
                   <figcaption className="text-xs uppercase tracking-[0.18em] text-rose-deep">

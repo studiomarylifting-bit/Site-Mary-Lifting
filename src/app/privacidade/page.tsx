@@ -83,7 +83,7 @@ export default function PrivacyPage() {
 
         <H id="direitos">9. Seus direitos</H>
         <P>Você pode solicitar confirmação de tratamento, acesso, correção, anonimização, bloqueio ou eliminação, portabilidade, informação sobre compartilhamento e revogação de consentimento. Se tiver conta, pode baixar uma cópia dos seus dados em Minha conta &gt; Perfil e dados.</P>
-        <div className="border border-line bg-ivory p-6 md:p-8">
+        <div className="rounded-media bg-ivory p-6 shadow-soft md:p-8">
           <h3 className="mb-5 text-2xl">Fazer uma solicitação</h3>
           <PrivacyRequestForm />
         </div>
