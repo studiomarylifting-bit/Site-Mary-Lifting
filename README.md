@@ -16,7 +16,8 @@ npm run dev                     # http://localhost:3000
 
 Sem nenhuma variável, o catálogo e as páginas públicas funcionam. Cada integração degrada de forma segura: Google mostra "aguardando configuração", Uazapi registra a notificação como `skipped`, e as rotas `/conta` e `/admin` redirecionam para o login.
 
-Guia completo (Supabase, primeiro admin, e-mails): [docs/SETUP.md](docs/SETUP.md).
+**Quer testar?** Siga o passo a passo em [docs/TESTE-LOCAL.md](docs/TESTE-LOCAL.md).
+Guia de configuração (Supabase, primeiro admin, e-mails): [docs/SETUP.md](docs/SETUP.md).
 
 ## Scripts
 
@@ -28,6 +29,8 @@ Guia completo (Supabase, primeiro admin, e-mails): [docs/SETUP.md](docs/SETUP.md
 | `npm test` | Vitest (unitários, `tests/unit`) |
 | `npm run test:e2e` | Playwright (`tests/e2e`, desktop e mobile) |
 | `npm run seed:generate` | Regenera `supabase/seed.sql` a partir de `src/features/catalog/data.ts` |
+| `npm run verify` | typecheck + lint + testes + build, em sequência |
+| `npm run check:env` | Mostra quais integrações estão configuradas (sem revelar valores) |
 | `npm run audit:deps` | `npm audit --omit=dev` |
 
 ## Estrutura
@@ -57,4 +60,4 @@ Fonte única: `src/features/catalog/data.ts` (valores em centavos). A lista info
 
 ## Documentação
 
-- [Setup](docs/SETUP.md) · [Segurança](docs/SECURITY.md) · [Privacidade e LGPD](docs/PRIVACY.md) · [Integrações](docs/INTEGRATIONS.md) · [Testes e estado de validação](docs/TESTING.md)
+- [Teste local](docs/TESTE-LOCAL.md) · [Setup](docs/SETUP.md) · [Segurança](docs/SECURITY.md) · [Privacidade e LGPD](docs/PRIVACY.md) · [Integrações](docs/INTEGRATIONS.md) · [Testes e estado de validação](docs/TESTING.md)
