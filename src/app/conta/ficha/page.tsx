@@ -1,0 +1,48 @@
+import type { Metadata } from "next";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSessionUser } from "@/server/policies/authz";
+import { formatBrazilPhone } from "@/lib/format";
+import { IntakeForm, type IntakeValues } from "@/features/intake/IntakeForm";
+import { DeleteIntakeButton } from "@/features/intake/DeleteIntakeButton";
+
+export const metadata: Metadata = { title: "Ficha de atendimento" };
+
+export default async function IntakePage() {
+  const user = await getSessionUser();
+  const supabase = await createSupabaseServerClient();
+  if (!user || !supabase) return null;
+
+  const [{ data: form }, { data: profile }] = await Promise.all([
+    supabase.from("intake_forms").select("*").eq("user_id", user.id).maybeSingle(),
+    supabase.from("profiles").select("full_name, phone").eq("id", user.id).maybeSingle(),
+  ]);
+
+  const initial: Partial<IntakeValues> = form
+    ? {
+        fullName: form.full_name, phone: formatBrazilPhone(form.phone), birthDate: form.birth_date,
+        instagram: form.instagram ?? "", noInstagram: form.no_instagram,
+        allergies: form.allergies, medications: form.medications, healthConditions: form.health_conditions,
+        pregnancyBreastfeeding: form.pregnancy_breastfeeding, skinSensitivity: form.skin_sensitivity,
+        eyeSensitivity: form.eye_sensitivity, contactLenses: form.contact_lenses,
+        recentProcedures: form.recent_procedures, previousReactions: form.previous_reactions,
+        goalsPreferences: form.goals_preferences, otherInformation: form.other_information,
+      }
+    : { fullName: profile?.full_name ?? "", phone: profile?.phone ? formatBrazilPhone(profile.phone) : "" };
+
+  return (
+    <div className="space-y-8">
+      <header>
+        <p className="text-[0.7rem] uppercase tracking-[0.3em] text-rose-deep">Minha conta</p>
+        <h1 className="mt-3 text-5xl">Ficha de atendimento</h1>
+      </header>
+      <IntakeForm initial={initial} hasExisting={Boolean(form)} />
+      {form && (
+        <section className="border-t border-line pt-8">
+          <h2 className="text-2xl">Excluir minha ficha</h2>
+          <p className="mt-2 max-w-xl text-sm text-cocoa">Remove definitivamente as respostas da ficha. Seu cadastro e histórico de consentimentos permanecem.</p>
+          <div className="mt-4"><DeleteIntakeButton /></div>
+        </section>
+      )}
+    </div>
+  );
+}

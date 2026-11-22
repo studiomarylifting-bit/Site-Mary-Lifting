@@ -2,8 +2,9 @@ import type { Service, ServiceCategory } from "./types";
 
 /**
  * Fonte única do catálogo (textos e valores informados pelo Studio).
- * Para incluir a 15ª opção de extensão de cílios, basta adicionar um item
- * em `services` com categorySlug "cilios". Nada mais precisa mudar.
+ * A lista informada tem 15 entradas de cílios (14 técnicas + "Remoção de extensão").
+ * Se o Studio quiser incluir outra técnica, basta adicionar um item em `services`
+ * com categorySlug "cilios" e ajustar `declaredOptionCount`. Nada mais muda.
  * O seed SQL é gerado a partir deste arquivo (npm run seed:generate).
  */
 export const categories: ServiceCategory[] = [
