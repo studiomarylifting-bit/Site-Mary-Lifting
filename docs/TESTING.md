@@ -1,0 +1,20 @@
+# Testes e estado de validação
+
+## O que existe
+- `tests/unit` (Vitest): catálogo (todos os preços informados), formatação e telefone, anti-spam, `safeNextPath`, mensagens minimizadas, cliente Uazapi (headers, retry, 4xx), validação de ambiente, helpers de rate limit e schemas Zod (cadastro, SAC, feedback, ficha, consentimentos).
+- `tests/e2e` (Playwright, desktop e Pixel 7): páginas públicas, catálogo, rotas protegidas, login/cadastro, formulários, CSRF por `Origin`, honeypot e cabeçalhos de segurança.
+
+## O que foi de fato executado (ambiente sem acesso ao npm)
+| Verificação | Resultado |
+| --- | --- |
+| Testes unitários de módulos puros (catálogo, formato, anti-spam, safe-next, mensagens) | **Executados e aprovados** (41/41) com um mini-runner compatível com a API do Vitest, não com o Vitest real |
+| `scripts/generate-seed.ts` | Executado; `seed.sql` já estava atualizado (4 categorias, 23 serviços) |
+| Sintaxe TS/JSX (`tsc`) | Sem erros de sintaxe; **sem typecheck completo** |
+| RLS: todas as 12 tabelas com RLS ativado; migration sem operações destrutivas | Verificado por leitura do SQL; **não aplicado em um Postgres real** |
+| Variáveis usadas no código × `.env.example` | Conferido (5 variáveis `NEXT_PUBLIC_LEGAL_*` estavam faltando e foram adicionadas) |
+| Varredura de secrets e de uso de service role em client components | Nada encontrado |
+
+## O que NÃO foi executado
+`npm install`, `typecheck` completo, `lint`, **Vitest real**, **Playwright**, `next build`, `npm audit`, testes de RLS contra um banco, e qualquer chamada real a Supabase, Uazapi ou Google. Os testes de `schemas`, `env`, `rate-limit` e `uazapi-client` dependem de pacotes (Zod, Supabase) e **ainda não foram rodados**. Nada disso deve ser considerado aprovado até rodar `npm install && npm run typecheck && npm run lint && npm test && npm run build && npm run test:e2e`.
+
+Testes de RLS exigem um projeto Supabase de teste e são um próximo passo recomendado.
