@@ -41,7 +41,7 @@ export default async function AdminClientDetail({ params }: { params: Promise<{ 
       <header>
         <h1 className="text-5xl">{profile.full_name}</h1>
         <p className="mt-2 text-cocoa">{formatBrazilPhone(profile.phone)}{email ? ` · ${email}` : ""}</p>
-        <p className="text-sm text-cocoa/70">Cadastro em {new Date(profile.created_at).toLocaleDateString("pt-BR")}</p>
+        <p className="text-sm text-cocoa/85">Cadastro em {new Date(profile.created_at).toLocaleDateString("pt-BR")}</p>
       </header>
 
       <section aria-labelledby="ficha">

@@ -32,14 +32,14 @@ export default async function AdminTicket({ params }: { params: Promise<{ id: st
         <div><dt className="text-xs uppercase tracking-[0.15em] text-rose-deep">E-mail</dt><dd>{t.email}</dd></div>
         <div><dt className="text-xs uppercase tracking-[0.15em] text-rose-deep">Celular</dt><dd>{formatBrazilPhone(t.phone)}</dd></div>
       </dl>
-      <section className="border border-line bg-ivory p-6">
-        <p className="text-xs text-cocoa/70">{new Date(t.created_at).toLocaleString("pt-BR")}</p>
+      <section className="rounded-card bg-ivory shadow-soft p-6">
+        <p className="text-xs text-cocoa/85">{new Date(t.created_at).toLocaleString("pt-BR")}</p>
         <p className="mt-3 whitespace-pre-wrap text-cocoa">{t.message}</p>
       </section>
       {msgs.length > 0 && (
         <ul className="space-y-3">
           {msgs.map((m) => (
-            <li key={m.id} className={`border p-5 text-sm ${m.author_role === "admin" ? "border-cocoa/30 bg-nude/50" : "border-line bg-ivory"}`}>
+            <li key={m.id} className={`rounded-card p-5 text-sm ${m.author_role === "admin" ? "bg-nude/60" : "bg-ivory shadow-soft"}`}>
               <p className="text-xs uppercase tracking-[0.15em] text-rose-deep">{m.author_role === "admin" ? "Studio" : "Cliente"} · {new Date(m.created_at).toLocaleString("pt-BR")}</p>
               <p className="mt-2 whitespace-pre-wrap text-cocoa">{m.body}</p>
             </li>

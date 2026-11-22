@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { buttonClass } from "@/components/ui/Button";
+import { fieldControl } from "@/components/ui/Field";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { formatBrazilPhone, onlyDigits } from "@/lib/format";
 
@@ -36,8 +38,8 @@ export default async function AdminClients({
       <h1 className="text-5xl">Clientes</h1>
       <form className="flex max-w-md gap-2" role="search">
         <label htmlFor="q" className="sr-only">Buscar por nome ou celular</label>
-        <input id="q" name="q" defaultValue={q} placeholder="Buscar por nome ou celular" className="w-full border border-line bg-ivory px-4 py-3" />
-        <button className="bg-espresso px-5 text-ivory">Buscar</button>
+        <input id="q" name="q" defaultValue={q} placeholder="Buscar por nome ou celular" className={fieldControl} />
+        <button className={buttonClass("primary", "px-6")}>Buscar</button>
       </form>
       {!data?.length ? <p className="text-cocoa">Nenhuma cliente encontrada.</p> : (
         <div className="overflow-x-auto">

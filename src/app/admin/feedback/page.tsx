@@ -17,7 +17,7 @@ export default async function AdminFeedback() {
       {!data?.length ? <p className="text-cocoa">Nenhum feedback recebido.</p> : (
         <ul className="space-y-4">
           {data.map((f) => (
-            <li key={f.id} className="space-y-4 border border-line bg-ivory p-6">
+            <li key={f.id} className="space-y-4 rounded-card bg-ivory shadow-soft p-6">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <Stars value={f.rating} />
                 <p className="text-xs uppercase tracking-[0.15em] text-rose-deep">
@@ -25,7 +25,7 @@ export default async function AdminFeedback() {
                 </p>
               </div>
               <p className="whitespace-pre-wrap text-cocoa">{f.comment}</p>
-              <p className="text-xs text-cocoa/70">
+              <p className="text-xs text-cocoa/85">
                 {f.anonymize ? "Exibição: Cliente (anônimo)" : `Exibição: ${f.display_name}`}
                 {f.procedure_slug && getServiceBySlug(f.procedure_slug) ? ` · ${getServiceBySlug(f.procedure_slug)?.name}` : ""}
                 {" · "}{new Date(f.created_at).toLocaleDateString("pt-BR")}

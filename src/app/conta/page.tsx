@@ -41,7 +41,7 @@ export default async function AccountHome() {
       <ul className="grid gap-4 sm:grid-cols-2">
         {cards.map(({ href, icon: Icon, title, info }) => (
           <li key={href}>
-            <Link href={href} className="group flex h-full items-start justify-between gap-4 border border-line bg-ivory p-6 transition-colors hover:bg-nude/50">
+            <Link href={href} className="group flex h-full items-start justify-between gap-4 rounded-card bg-ivory shadow-soft p-6 transition duration-300 hover:-translate-y-0.5 hover:shadow-lift motion-reduce:transition-none motion-reduce:hover:translate-y-0">
               <span className="flex gap-4">
                 <Icon size={24} strokeWidth={1.3} className="mt-1 text-rose-deep" aria-hidden />
                 <span><span className="block font-display text-2xl text-espresso">{title}</span><span className="text-sm text-cocoa">{info}</span></span>

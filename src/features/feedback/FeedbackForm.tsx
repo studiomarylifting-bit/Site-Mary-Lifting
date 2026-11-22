@@ -50,7 +50,7 @@ export function FeedbackForm({ procedures }: { procedures: { slug: string; name:
           {[1, 2, 3, 4, 5].map((n) => (
             <label key={n} className="cursor-pointer">
               <input type="radio" value={n} className="peer sr-only" {...register("rating", { required: "Selecione uma nota" })} />
-              <span className="flex h-12 w-12 items-center justify-center border border-line bg-ivory font-display text-xl transition-colors peer-checked:border-espresso peer-checked:bg-espresso peer-checked:text-ivory peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-rose-deep">{n}</span>
+              <span className="flex h-12 w-12 items-center justify-center rounded-full border border-stroke bg-ivory font-display text-xl transition-colors hover:border-espresso peer-checked:border-espresso peer-checked:bg-espresso peer-checked:text-ivory peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-rose-deep motion-reduce:transition-none">{n}</span>
             </label>
           ))}
         </div>
@@ -62,14 +62,14 @@ export function FeedbackForm({ procedures }: { procedures: { slug: string; name:
       <TextAreaField id="comment" label="Seu comentário" rows={5} required error={errors.comment?.message}
         {...register("comment", { required: "Escreva seu comentário" })} />
 
-      <div className="space-y-4 border border-line bg-ivory p-5">
+      <div className="space-y-4 rounded-card bg-ivory p-5 shadow-soft">
         <CheckField id="anonymize" label="Publicar de forma anônima (como “Cliente”)" {...register("anonymize")} />
         {!anonymize && (
           <TextField id="displayName" label="Nome para exibição" autoComplete="given-name" error={errors.displayName?.message}
             hint="Use apenas o primeiro nome, se preferir." {...register("displayName")} />
         )}
         <CheckField id="publishConsent" label="Autorizo a publicação do meu feedback no site do Studio, após aprovação." {...register("publishConsent")} />
-        <p className="text-xs text-cocoa/70">Sem esta autorização, seu feedback fica privado e não é publicado.</p>
+        <p className="text-xs text-cocoa/85">Sem esta autorização, seu feedback fica privado e não é publicado.</p>
       </div>
 
       <div className="hp-field" aria-hidden="true">

@@ -39,19 +39,19 @@ export default function StudioPage() {
             src={studio.maps.embed}
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
-            className="aspect-[4/3] w-full border border-line bg-nude"
+            className="aspect-[4/3] w-full rounded-media border-0 bg-nude shadow-soft"
           />
         </div>
       </Container>
 
-      <section aria-labelledby="experiencia" className="border-y border-line bg-ivory py-16 md:py-24">
+      <section aria-labelledby="experiencia" className="mx-3 rounded-panel bg-ivory py-16 shadow-soft md:mx-6 md:py-24">
         <Container className="grid items-center gap-12 lg:grid-cols-2">
           <div>
             <h2 id="experiencia" className="text-4xl md:text-5xl">A experiência</h2>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-cocoa">
               Converse com o Studio para entender qual cuidado combina com você.
             </p>
-            <p className="mt-4 max-w-xl text-sm text-cocoa/70">
+            <p className="mt-4 max-w-xl text-sm text-cocoa/85">
               Fotos e vídeo do ambiente serão adicionados pelo Studio.
             </p>
           </div>

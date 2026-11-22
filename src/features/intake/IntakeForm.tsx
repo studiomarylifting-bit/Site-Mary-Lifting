@@ -89,7 +89,7 @@ export function IntakeForm({ initial, hasExisting }: { initial: Partial<IntakeVa
         ))}
       </fieldset>
 
-      <fieldset className="space-y-5 border border-line bg-ivory p-6">
+      <fieldset className="space-y-5 rounded-media bg-ivory p-6 shadow-soft md:p-8">
         <legend className="px-2 font-display text-3xl text-espresso">Autorizações</legend>
         <p className="text-sm text-cocoa">Cada autorização é independente. Somente a primeira é necessária para enviar a ficha; as demais são opcionais e não condicionam o atendimento.</p>
         {intakeConsents.map((c) => {

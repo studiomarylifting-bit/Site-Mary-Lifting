@@ -1,15 +1,17 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 
-type Variant = "primary" | "outline" | "light" | "text";
+type Variant = "primary" | "outline" | "light" | "soft" | "text";
 
+/** Botões em pill: a forma é o sinal de "ação"; campos e cards usam raios menores. */
 const base =
-  "group inline-flex items-center justify-center gap-2 text-sm tracking-wide transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50";
+  "group inline-flex min-h-12 items-center justify-center gap-2 rounded-full text-sm font-medium tracking-wide transition duration-300 ease-out active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none motion-reduce:active:scale-100";
 const variants: Record<Variant, string> = {
-  primary: "bg-espresso px-7 py-3.5 text-ivory hover:bg-cocoa",
-  outline: "border border-espresso px-7 py-3.5 text-espresso hover:bg-espresso hover:text-ivory",
+  primary: "bg-espresso px-7 py-3.5 text-ivory shadow-soft hover:bg-cocoa hover:shadow-lift",
+  outline: "border border-cocoa/35 px-7 py-3.5 text-espresso hover:border-espresso hover:bg-espresso hover:text-ivory",
   light: "bg-ivory px-7 py-3.5 text-espresso hover:bg-nude",
-  text: "text-espresso underline underline-offset-[6px] decoration-rose hover:text-rose-deep",
+  soft: "bg-nude/70 px-7 py-3.5 text-espresso hover:bg-nude",
+  text: "rounded-md px-1 text-espresso underline decoration-rose underline-offset-[6px] hover:text-rose-deep",
 };
 
 export function buttonClass(variant: Variant = "primary", extra = "") {
@@ -30,7 +32,7 @@ export function LinkButton({ href, variant = "primary", children, external, clas
     <>
       {children}
       {arrow && (
-        <ArrowUpRight size={16} aria-hidden className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+        <ArrowUpRight size={16} aria-hidden className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 motion-reduce:transform-none" />
       )}
     </>
   );

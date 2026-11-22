@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Alert } from "@/components/ui/Alert";
 import { buttonClass } from "@/components/ui/Button";
+import { fieldControl } from "@/components/ui/Field";
 import { sendJson } from "@/lib/client/post-json";
 
 const statuses = [
@@ -38,14 +39,14 @@ export function TicketAdminPanel({ id, status }: { id: string; status: string })
       {msg && <Alert tone={msg.tone}>{msg.text}</Alert>}
       <div className="flex flex-wrap items-center gap-3">
         <label htmlFor="status" className="text-sm font-medium text-cocoa">Status</label>
-        <select id="status" value={status} disabled={busy} onChange={(e) => changeStatus(e.target.value)} className="border border-line bg-ivory px-3 py-2">
+        <select id="status" value={status} disabled={busy} onChange={(e) => changeStatus(e.target.value)} className={`${fieldControl} select-control w-auto py-2.5`}>
           {statuses.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
         </select>
       </div>
       <form onSubmit={send} className="space-y-3">
         <label htmlFor="reply" className="block text-sm font-medium text-cocoa">Responder</label>
-        <textarea id="reply" value={reply} onChange={(e) => setReply(e.target.value)} rows={5} maxLength={3000} className="w-full border border-line bg-ivory px-4 py-3" />
-        <p className="text-xs text-cocoa/70">A resposta fica visível à cliente apenas se ela tiver conta vinculada ao ticket. Para clientes sem conta, responda também pelos contatos informados.</p>
+        <textarea id="reply" value={reply} onChange={(e) => setReply(e.target.value)} rows={5} maxLength={3000} className={fieldControl} />
+        <p className="text-xs text-cocoa/85">A resposta fica visível à cliente apenas se ela tiver conta vinculada ao ticket. Para clientes sem conta, responda também pelos contatos informados.</p>
         <button disabled={busy || !reply.trim()} className={buttonClass("primary")}>{busy ? "Enviando..." : "Enviar resposta"}</button>
       </form>
     </section>

@@ -22,7 +22,7 @@ export default function CatalogPage() {
         <ul className="grid gap-6 md:grid-cols-2">
           {getCategories().map((c) => (
             <li key={c.slug}>
-              <Link href={`/catalogo/${c.slug}`} className="group flex h-full flex-col justify-between border border-line bg-ivory p-8 transition-colors hover:bg-nude/50 md:p-10">
+              <Link href={`/catalogo/${c.slug}`} className="group flex h-full flex-col justify-between rounded-media bg-ivory p-8 shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-lift motion-reduce:transition-none motion-reduce:hover:translate-y-0 md:p-10">
                 <div>
                   <span className="font-display text-5xl text-rose">{c.index}</span>
                   <h2 className="mt-4 text-3xl md:text-4xl">{c.title}</h2>

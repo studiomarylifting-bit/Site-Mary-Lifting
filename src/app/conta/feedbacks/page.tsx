@@ -26,17 +26,17 @@ export default async function MyFeedbackPage() {
         <LinkButton href="/feedback/enviar" variant="outline">Enviar feedback</LinkButton>
       </header>
       {!data?.length ? (
-        <p className="border border-dashed border-line p-10 text-center text-cocoa">Você ainda não enviou feedbacks.</p>
+        <p className="rounded-card border border-dashed border-stroke/60 p-10 text-center text-cocoa">Você ainda não enviou feedbacks.</p>
       ) : (
         <ul className="space-y-4">
           {data.map((f) => (
-            <li key={f.id} className="space-y-3 border border-line bg-ivory p-6">
+            <li key={f.id} className="space-y-3 rounded-card bg-ivory shadow-soft p-6">
               <div className="flex items-center justify-between gap-3">
                 <Stars value={f.rating} />
                 <span className="text-xs uppercase tracking-[0.15em] text-rose-deep">{statusLabel[f.status as keyof typeof statusLabel]}{!f.publish_consent && " · privado"}</span>
               </div>
               <p className="text-cocoa">{f.comment}</p>
-              <p className="text-xs text-cocoa/70">{new Date(f.created_at).toLocaleDateString("pt-BR")}</p>
+              <p className="text-xs text-cocoa/85">{new Date(f.created_at).toLocaleDateString("pt-BR")}</p>
             </li>
           ))}
         </ul>

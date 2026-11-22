@@ -13,7 +13,7 @@ function formatDate(iso?: string): string | null {
 function ReviewCard({ r }: { r: GoogleReview }) {
   const date = formatDate(r.publishTime) ?? r.relativeTime;
   return (
-    <article className="flex h-full flex-col gap-4 border border-line bg-ivory p-6">
+    <article className="flex h-full flex-col gap-4 rounded-media bg-ivory p-6 shadow-soft">
       <header className="flex items-center gap-3">
         {/* Foto do autor é servida pelo Google (googleusercontent): exibida como <img> sem otimização local. */}
         {r.authorPhotoUrl && (
@@ -26,11 +26,11 @@ function ReviewCard({ r }: { r: GoogleReview }) {
           ) : (
             <p className="font-medium text-espresso">{r.authorName}</p>
           )}
-          {date && <p className="text-xs text-cocoa/70">{date}</p>}
+          {date && <p className="text-xs text-cocoa/85">{date}</p>}
         </div>
       </header>
       <Stars value={r.rating} />
-      {r.text ? <p className="flex-1 text-sm leading-relaxed text-cocoa">{r.text}</p> : <p className="flex-1 text-sm italic text-cocoa/60">Avaliação sem comentário.</p>}
+      {r.text ? <p className="flex-1 text-sm leading-relaxed text-cocoa">{r.text}</p> : <p className="flex-1 text-sm italic text-cocoa/85">Avaliação sem comentário.</p>}
       {r.reviewUrl && (
         <a href={r.reviewUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-rose-deep hover:underline">
           Ver no Google <ExternalLink size={12} aria-hidden />
@@ -96,7 +96,7 @@ export async function GoogleReviews() {
         {result.reviews.map((r, i) => <li key={`${r.authorName}-${i}`}><ReviewCard r={r} /></li>)}
       </ul>
 
-      <p className="text-xs text-cocoa/70">
+      <p className="text-xs text-cocoa/85">
         Avaliações fornecidas pelo Google (exibimos as mais relevantes retornadas pela API; para ver todas, acesse o Google). Google e Google Maps são marcas da Google LLC.
       </p>
     </div>

@@ -1,7 +1,7 @@
 import { forwardRef } from "react";
 
 const control =
-  "w-full border border-line bg-ivory px-4 py-3 text-base text-ink placeholder:text-sand transition-colors focus:border-rose-deep focus:outline-none focus-visible:outline-none aria-[invalid=true]:border-rose-deep";
+  "w-full rounded-field border border-stroke bg-ivory px-4 py-3.5 text-base text-ink placeholder:text-taupe transition duration-200 hover:border-taupe focus:border-rose-deep focus:outline-none focus:ring-4 focus:ring-rose/25 focus-visible:outline-none aria-[invalid=true]:border-rose-deep aria-[invalid=true]:bg-rose/5";
 
 interface FieldShellProps {
   id: string;
@@ -12,6 +12,9 @@ interface FieldShellProps {
   children: React.ReactNode;
 }
 
+/** Mesmo estilo dos campos, para controles soltos (busca, filtros, respostas do admin). */
+export const fieldControl = control;
+
 export function FieldShell({ id, label, hint, error, required, children }: FieldShellProps) {
   return (
     <div className="space-y-1.5">
@@ -19,9 +22,9 @@ export function FieldShell({ id, label, hint, error, required, children }: Field
         {label}
         {required && <span aria-hidden className="text-rose-deep"> *</span>}
       </label>
-      {hint && <p id={`${id}-hint`} className="text-xs text-cocoa/70">{hint}</p>}
+      {hint && <p id={`${id}-hint`} className="text-xs text-cocoa/85">{hint}</p>}
       {children}
-      {error && <p id={`${id}-error`} className="text-xs text-rose-deep">{error}</p>}
+      {error && <p id={`${id}-error`} className="text-xs font-medium text-rose-deep">{error}</p>}
     </div>
   );
 }
@@ -74,7 +77,7 @@ export const SelectField = forwardRef<HTMLSelectElement, SelectProps>(function S
   return (
     <FieldShell id={id} label={label} error={error} required={required}>
       <select ref={ref} id={id} required={required} aria-invalid={error ? true : undefined}
-        aria-describedby={error ? `${id}-error` : undefined} className={`${control} ${className}`} {...rest}>
+        aria-describedby={error ? `${id}-error` : undefined} className={`${control} select-control ${className}`} {...rest}>
         {placeholder && <option value="">{placeholder}</option>}
         {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
@@ -91,17 +94,17 @@ export const CheckField = forwardRef<HTMLInputElement, CheckProps>(function Chec
 ) {
   return (
     <div className="space-y-1">
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-3.5">
         <input ref={ref} id={id} type="checkbox"
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? `${id}-error` : undefined}
-          className={`mt-1 h-5 w-5 shrink-0 accent-[#5b4136] ${className}`} {...rest} />
-        <label htmlFor={id} className="text-sm leading-relaxed text-cocoa">
+          className={`check-control mt-0.5 cursor-pointer ${className}`} {...rest} />
+        <label htmlFor={id} className="cursor-pointer text-sm leading-relaxed text-cocoa">
           {label}
           {badge && <span className="ml-2 text-[0.65rem] uppercase tracking-widest text-rose-deep">{badge}</span>}
         </label>
       </div>
-      {error && <p id={`${id}-error`} className="pl-8 text-xs text-rose-deep">{error}</p>}
+      {error && <p id={`${id}-error`} className="pl-9 text-xs font-medium text-rose-deep">{error}</p>}
     </div>
   );
 });
