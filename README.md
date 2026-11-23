@@ -34,6 +34,7 @@ Guia de configuração (Supabase, primeiro admin, e-mails): [docs/SETUP.md](docs
 | `npm run faq:review` | Regenera `docs/FAQ-REVISAO.md` (o que a proprietária precisa confirmar) |
 | `npm run test:db` | Migrations, seed e RLS/Storage num PostgreSQL local descartável (requer `psql`) |
 | `npm run link:images -- arquivos.txt` | Gera o SQL que vincula imagens do Storage aos serviços (correspondência exata) |
+| `npm run check:images` | Diagnostica por que as fotos do Supabase não aparecem no site |
 | `npm run audit:deps` | `npm audit --omit=dev` |
 
 ## Estrutura
