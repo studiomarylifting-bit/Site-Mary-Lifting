@@ -116,3 +116,17 @@ Se você já enviou várias fotos, não precisa preencher uma por uma. A ferrame
 
 ## 6. Como o painel gerenciará imagens no futuro
 A base já está pronta, sem reconstruir o catálogo: o bucket, as políticas de envio/troca/remoção só para admin, o grant que permite à administradora atualizar apenas `image_path`, as constantes de validação (`MAX_IMAGE_BYTES`, `ALLOWED_IMAGE_MIME`, `IMAGE_FOLDERS` e `isValidImagePath` em `src/features/catalog/storage.ts`) e a revalidação automática. Falta apenas a tela: escolher arquivo com preview, validar formato/tamanho no navegador, enviar ao Storage (`supabase.storage.from("site-media").upload`), gravar o `image_path` e remover o arquivo antigo.
+
+## 7. As fotos não aparecem no site? Diagnóstico
+
+Rode `npm run check:images`. Ele lê o `.env.local`, consulta o Supabase **como o site faz** (chave pública) e testa a URL de cada foto, parando no primeiro elo quebrado:
+
+| Mensagem | Causa e solução |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL ... não estão no .env.local` | Sem essas variáveis o site usa o catálogo **estático**, que não tem fotos. Preencha e **reinicie** `npm run dev`. |
+| `HTTP 401/404 ao ler services` | Chave anon errada, ou migrations/seed não aplicados. |
+| `nenhum serviço tem image_path` | O `supabase/link_images.sql` ainda não foi executado. |
+| `HTTP 400/404` em uma foto | O arquivo não existe com aquele nome **exato** (maiúsculas e espaços contam) ou o bucket não é público. |
+| Tudo OK, mas o site não mostra | Reinicie o servidor (o `next.config.mjs` só lê o `.env` na partida) e recarregue com Ctrl+Shift+R. |
+
+No terminal do `npm run dev`, a linha `[catalog] usando o catálogo ESTÁTICO, sem fotos (motivo)` confirma que o site não está lendo o Supabase, e `[MediaImage] não carregou ...` mostra a URL de uma foto que falhou. Em desenvolvimento o catálogo **não usa cache**; em produção, mudanças aparecem em até 5 minutos.
