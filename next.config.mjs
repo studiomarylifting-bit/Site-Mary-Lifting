@@ -32,11 +32,24 @@ const supabaseHost = (() => {
 const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
-  images: {
+    images: {
     formats: ["image/avif", "image/webp"],
-    remotePatterns: supabaseHost
-      ? [{ protocol: "https", hostname: supabaseHost, pathname: "/storage/v1/object/public/site-media/**" }]
-      : [],
+    remotePatterns: [
+      ...(supabaseHost
+        ? [
+            {
+              protocol: "https",
+              hostname: supabaseHost,
+              pathname: "/storage/v1/object/public/site-media/**",
+            },
+          ]
+        : []),
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        pathname: "/izm2j4iu/image/upload/**",
+      },
+    ],
   },
   async headers() {
     return [
