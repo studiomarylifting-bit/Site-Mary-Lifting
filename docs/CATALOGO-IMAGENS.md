@@ -10,8 +10,9 @@ No painel do Supabase, **SQL Editor → New query**, rode **nesta ordem** (cole 
 
 1. `supabase/migrations/20261121000001_init_schema.sql` (só se ainda não rodou; cria as tabelas)
 2. `supabase/migrations/20261122000001_catalog_storage.sql` (colunas de imagem, preços em reais, bucket e políticas)
-3. `supabase/seed.sql` (4 categorias e 23 serviços)
-4. `supabase/verify_catalog.sql` (somente leitura: confira o resultado)
+3. `supabase/migrations/20261122000002_image_path_filenames.sql` (aceita nomes de arquivo com espaços e maiúsculas, como `Brow lamination.jpg`)
+4. `supabase/seed.sql` (4 categorias e 23 serviços)
+5. `supabase/verify_catalog.sql` (somente leitura: confira o resultado)
 
 Todos são **aditivos e idempotentes**: nada é apagado e rodar de novo não duplica.
 
@@ -28,7 +29,7 @@ Todos são **aditivos e idempotentes**: nada é apagado e rodar de novo não dup
 
 1. Supabase → **Storage → site-media**.
 2. Crie as pastas: `servicos`, `categorias`, `studio`, `home` (o Supabase cria a pasta ao enviar o primeiro arquivo dentro dela).
-3. Envie a foto na pasta certa. Regras: **JPG, PNG, WebP ou AVIF, até 5 MB**. Prefira **WebP** (mais leve). Nomes em **minúsculas**, sem espaços nem acentos, só letras, números, `-`, `_` e `.`.
+3. Envie a foto na pasta certa. Regras: **JPG, PNG, WebP ou AVIF, até 5 MB**. Prefira **WebP** (mais leve). Nomes **sem acentos**; letras (maiúsculas ou minúsculas), números, espaço, `-`, `_` e `.` são aceitos (ex.: `Brow lamination.jpg`). Evite `;`, `%`, `?`, `#` e `\`: o banco recusa.
 
 ### Nomes sugeridos por serviço
 
@@ -82,7 +83,7 @@ O banco **recusa** caminhos inválidos (URL, `..`, pasta errada ou extensão que
 
 ### Vincular imagens já enviadas, em lote (ferramenta)
 
-Se você já enviou várias fotos, não precisa preencher uma por uma. A ferramenta compara os **nomes reais dos arquivos** com os serviços e gera o SQL. Ela só vincula quando o nome do arquivo (sem a extensão) é **idêntico ao slug** do serviço (ex.: `volume-egipcio.webp` → serviço `volume-egipcio`). Qualquer nome parecido vira apenas uma sugestão no relatório e **não** entra no SQL. Serviços sem arquivo ficam com `image_path` nulo.
+Se você já enviou várias fotos, não precisa preencher uma por uma. A ferramenta compara os **nomes reais dos arquivos** com os serviços e gera o SQL. Ela só vincula quando o nome do arquivo (sem a extensão), **ignorando maiúsculas, acentos e espaços**, é igual ao slug ou ao nome do serviço (ex.: `Buco com cera fria.jpg` → Buço com cera fria). Nome apenas parcial (ex.: `6D.jpg` para "6D Volume Glamour") vira sugestão e **não** entra no SQL, a menos que você o confirme com `--confirm "6D.jpg=6d-volume-glamour"`. O caminho gravado é sempre o nome **exato** do arquivo no Storage. Serviços sem arquivo ficam com `image_path` nulo.
 
 1. No **SQL Editor** do Supabase, rode esta consulta (somente leitura) para listar os arquivos:
    ```sql
@@ -94,6 +95,7 @@ Se você já enviou várias fotos, não precisa preencher uma por uma. A ferrame
    ```bash
    npm run link:images -- arquivos.txt
    ```
+   (a ferramenta entende o texto colado direto do painel, inclusive as linhas "arquivo.jpg actions")
    O relatório mostra vinculados, serviços sem imagem, arquivos sem serviço, nomes recusados pelo banco e sugestões. Ele gera `supabase/link_images.sql` e `supabase/verify_images.sql`.
 3. **Leia o relatório.** Se algum arquivo ficou de fora por nome diferente do slug, renomeie o arquivo no Storage (ou me avise) e gere de novo.
 4. No SQL Editor, rode `supabase/link_images.sql`. Ele é uma transação: só altera `image_path`, é idempotente e **aborta tudo** se algum serviço da lista não existir.

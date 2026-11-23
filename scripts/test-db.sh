@@ -19,7 +19,7 @@ run() { psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -q "$@"; }
 
 run -f tests/db/supabase_stub.sql
 for m in supabase/migrations/*.sql; do echo "migration: $m"; run -f "$m" >/dev/null; done
-echo "reaplicando a migration do catálogo (idempotência)"; run -f supabase/migrations/20261122000001_catalog_storage.sql >/dev/null 2>&1
+echo "reaplicando as migrations do catálogo (idempotência)"; for m in supabase/migrations/20261122*.sql; do run -f "$m" >/dev/null 2>&1; done
 run -f supabase/seed.sql >/dev/null; run -f supabase/seed.sql >/dev/null   # 2x: não pode duplicar
 
 out="$(psql "$TEST_DATABASE_URL" -q -f tests/db/catalog_rls.sql 2>&1 | sed -n 's/^psql:[^ ]* NOTICE:  //p')"

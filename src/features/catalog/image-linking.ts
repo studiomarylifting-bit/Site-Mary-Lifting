@@ -4,25 +4,29 @@ import { isValidImagePath } from "./storage";
  * Correspondência entre arquivos enviados ao Storage (site-media/servicos/) e
  * serviços cadastrados. Módulo puro: sem rede, sem banco.
  *
- * Regra ÚNICA de vínculo automático (exata):
- *   nome do arquivo SEM extensão === slug do serviço (idêntico, caractere a caractere).
- * Qualquer outra semelhança vira SUGESTÃO para a pessoa confirmar e nunca entra no SQL.
+ * Vínculo automático (determinístico, sem "achismo"): o nome do arquivo sem extensão,
+ * depois de ignorar maiúsculas, acentos e separadores, é IGUAL ao slug OU ao nome do
+ * serviço (ex.: "Buco com cera fria.jpg" = "Buço com cera fria").
+ * Qualquer outra semelhança (ex.: "6D" para "6D Volume Glamour") é só SUGESTÃO e nunca
+ * entra no SQL, a menos que a pessoa a confirme explicitamente (parâmetro `confirmations`).
  */
 export interface ServiceRef {
   slug: string;
   name: string;
 }
 
+export type LinkKind = "slug idêntico" | "nome equivalente" | "indicado manualmente - CONFIRA";
+
 export interface Suggestion {
   file: string;
   slug: string;
-  reason: "mesmo texto sem acentos/maiúsculas/separadores" | "nome do serviço";
+  reason: "nome parcial (parte do nome do serviço)";
 }
 
 export interface MatchResult {
   /** Vínculos exatos: viram UPDATE. */
-  links: { slug: string; imagePath: string }[];
-  /** Arquivos que casam com mais de um formato do mesmo serviço (ex.: x.jpg e x.webp). Não vinculados. */
+  links: { slug: string; imagePath: string; kind: LinkKind }[];
+  /** Mais de um arquivo para o mesmo serviço (ex.: x.jpg e x.webp). Não vinculados. */
   conflicts: { slug: string; files: string[] }[];
   /** Arquivos sem serviço de mesmo slug. Não vinculados. */
   unmatchedFiles: string[];
@@ -44,7 +48,8 @@ export function parseFileList(raw: string): { files: string[]; ignored: string[]
   const ignored: string[] = [];
   const seen = new Set<string>();
   for (const line of raw.split(/\r?\n/)) {
-    let t = line.trim().replace(/^[|"'`]+|[|"'`,;]+$/g, "").trim();
+    // O painel do Supabase cola "arquivo.jpg actions" (botão de ações ao lado do nome).
+    let t = line.trim().replace(/\s+actions$/i, "").replace(/^[|"'`]+|[|"'`,;]+$/g, "").trim();
     if (!t) continue;
     if (/^-+[\s+|-]*$/.test(t) || /^\(\d+ rows?\)$/i.test(t) || /^name$/i.test(t) || /^\d+\s+rows?$/i.test(t)) {
       ignored.push(line.trim());
@@ -79,37 +84,63 @@ export const normalize = (s: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 
-export function matchImages(files: string[], services: ServiceRef[], ignoredLines: string[] = []): MatchResult {
+export function matchImages(
+  files: string[],
+  services: ServiceRef[],
+  ignoredLines: string[] = [],
+  /** Vínculos confirmados explicitamente: nome do arquivo (com ou sem "servicos/") -> slug. */
+  confirmations: Record<string, string> = {},
+): MatchResult {
   const bySlug = new Map(services.map((s) => [s.slug, s]));
-  const links: MatchResult["links"] = [];
-  const conflicts: MatchResult["conflicts"] = [];
+  const confirmed = new Map(
+    Object.entries(confirmations).map(([f, slug]) => [f.startsWith(FOLDER) ? f : FOLDER + f, slug]),
+  );
+  const candidates = new Map<string, { path: string; kind: LinkKind }[]>();
   const unmatchedFiles: string[] = [];
   const invalidFiles: string[] = [];
   const suggestions: Suggestion[] = [];
 
-  const exactByService = new Map<string, string[]>();
+  const add = (slug: string, path: string, kind: LinkKind) =>
+    candidates.set(slug, [...(candidates.get(slug) ?? []), { path, kind }]);
+
   for (const file of files) {
     if (!isValidImagePath(file)) {
       invalidFiles.push(file);
       continue;
     }
     const stem = stemOf(file);
+    const target = confirmed.get(file);
+    if (target) {
+      if (bySlug.has(target)) add(target, file, "indicado manualmente - CONFIRA");
+      else unmatchedFiles.push(file);
+      continue;
+    }
     if (bySlug.has(stem)) {
-      exactByService.set(stem, [...(exactByService.get(stem) ?? []), file]);
+      add(stem, file, "slug idêntico");
+      continue;
+    }
+    const n = normalize(stem);
+    const hit = services.filter((s) => normalize(s.slug) === n || normalize(s.name) === n);
+    if (hit.length === 1) {
+      add(hit[0]!.slug, file, "nome equivalente");
       continue;
     }
     unmatchedFiles.push(file);
-    const n = normalize(stem);
-    for (const s of services) {
-      if (normalize(s.slug) === n) suggestions.push({ file, slug: s.slug, reason: "mesmo texto sem acentos/maiúsculas/separadores" });
-      else if (normalize(s.name) === n) suggestions.push({ file, slug: s.slug, reason: "nome do serviço" });
+    if (n) {
+      for (const s of services) {
+        const ns = `-${normalize(s.slug)}-`;
+        if (ns.includes(`-${n}-`)) suggestions.push({ file, slug: s.slug, reason: "nome parcial (parte do nome do serviço)" });
+      }
     }
   }
+
+  const links: MatchResult["links"] = [];
+  const conflicts: MatchResult["conflicts"] = [];
   for (const s of services) {
-    const found = exactByService.get(s.slug);
+    const found = candidates.get(s.slug);
     if (!found) continue;
-    if (found.length === 1) links.push({ slug: s.slug, imagePath: found[0]! });
-    else conflicts.push({ slug: s.slug, files: found });
+    if (found.length === 1) links.push({ slug: s.slug, imagePath: found[0]!.path, kind: found[0]!.kind });
+    else conflicts.push({ slug: s.slug, files: found.map((f) => f.path) });
   }
   const linked = new Set(links.map((l) => l.slug));
   return {
@@ -131,7 +162,13 @@ const q = (v: string) => `'${v.replace(/'/g, "''")}'`;
  */
 export function buildLinkSql(links: MatchResult["links"]): string {
   const values = links.map((l) => `    (${q(l.slug)}, ${q(l.imagePath)})`).join(",\n");
+  const oneLine = (t: string) => t.replace(/[\r\n]+/g, " ");
+  const table = links
+    .map((l) => `--   ${oneLine(l.imagePath).padEnd(48)} -> ${l.slug.padEnd(40)} [${l.kind}]`)
+    .join("\n");
   return `-- GERADO por scripts/link-images.ts. Revise antes de executar.
+-- Correspondência (arquivo -> serviço [critério]):
+${table}
 -- Preenche SOMENTE services.image_path (${links.length} serviços). Não altera preço, nome,
 -- descrição, categoria, id, posição nem status. Idempotente: rodar de novo não muda nada.
 -- Serviços que não aparecem aqui permanecem com o image_path que já tinham (nulo, se nunca preenchido).
