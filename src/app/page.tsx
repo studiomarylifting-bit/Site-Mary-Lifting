@@ -86,16 +86,17 @@ export default async function HomePage() {
 
           <div className="relative mx-auto w-full max-w-sm lg:col-span-5 lg:max-w-none">
             <div aria-hidden className="absolute -right-10 top-10 h-64 w-64 rounded-full bg-blush md:h-80 md:w-80" />
-            <MediaSlot
-              alt="Espaço reservado para foto do Studio"
+           <MediaSlot
+              src="https://res.cloudinary.com/izm2j4iu/image/upload/v1795401027/Studio_Mary_Lifting_Balloon-Decorated_Salon.png"
+              alt="Ambiente do Studio Mary Lifting"
               caption="Foto do Studio"
               ratio="3/4"
               shape="arch"
               priority
               className="relative lg:ml-auto lg:max-w-md"
             />
-            <div className="absolute -bottom-8 -left-2 w-32 rounded-full ring-8 ring-cream md:w-44 lg:-left-10">
-              <MediaSlot alt="Espaço reservado para foto de detalhe" caption="Detalhe" ratio="1/1" shape="circle" />
+             <div className="absolute -bottom-8 -left-2 w-32 rounded-full ring-8 ring-cream md:w-44 lg:-left-10">
+              <MediaSlot src="https://res.cloudinary.com/izm2j4iu/image/upload/v1795401027/Studio_Mary_Lifting_Balloon-Decorated_Salon.png" alt="Espaço reservado para foto de detalhe" caption="Detalhe" ratio="1/1" shape="circle" />
             </div>
             <p className="absolute -right-1 bottom-10 flex items-center gap-2 rounded-full bg-ivory px-4 py-2.5 text-sm text-espresso shadow-lift md:right-2 lg:-right-2">
               <MapPin size={16} className="text-rose-deep" aria-hidden />
@@ -176,8 +177,8 @@ export default async function HomePage() {
             </div>
           </div>
           <div className="grid grid-cols-5 items-end gap-4 lg:col-span-6">
-            <MediaSlot alt="Espaço reservado para foto do ambiente" caption="Ambiente" ratio="4/5" className="col-span-3" />
-            <MediaSlot alt="Espaço reservado para foto de detalhe do Studio" caption="Detalhe" ratio="3/4" shape="arch" className="col-span-2" />
+            <MediaSlot src="https://res.cloudinary.com/izm2j4iu/image/upload/v1795401027/Studio_Mary_Lifting_Balloon-Decorated_Salon.png" alt="Espaço reservado para foto do ambiente" caption="Ambiente" ratio="4/5" className="col-span-3" />
+            <MediaSlot src="https://res.cloudinary.com/izm2j4iu/image/upload/v1795401027/Studio_Mary_Lifting_Balloon-Decorated_Salon.png" alt="Espaço reservado para foto de detalhe do Studio" caption="Detalhe" ratio="3/4" shape="arch" className="col-span-2" />
           </div>
         </Container>
       </section>
