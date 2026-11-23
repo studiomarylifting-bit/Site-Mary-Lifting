@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { services } from "@/features/catalog/data";
+import { getServices } from "@/features/catalog/queries";
 import { Container, PageHero } from "@/components/shared/PageHero";
 import { FeedbackForm } from "@/features/feedback/FeedbackForm";
 
@@ -8,7 +8,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/feedback/enviar" },
 };
 
-export default function SendFeedbackPage() {
+export default async function SendFeedbackPage() {
+  const services = await getServices();
   return (
     <>
       <PageHero eyebrow="Feedback" title="Conte como foi sua experiência" lead="Seu feedback é analisado pelo Studio antes de qualquer publicação." />

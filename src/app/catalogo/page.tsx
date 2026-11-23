@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { getCategories, getServicesByCategory } from "@/features/catalog/queries";
+import { servicesOfCategory, sortedCategories } from "@/features/catalog/catalog-core";
+import { getCatalog } from "@/features/catalog/queries";
 import { Container, PageHero } from "@/components/shared/PageHero";
 
 export const metadata: Metadata = {
@@ -10,7 +11,10 @@ export const metadata: Metadata = {
   alternates: { canonical: "/catalogo" },
 };
 
-export default function CatalogPage() {
+export const revalidate = 300;
+
+export default async function CatalogPage() {
+  const catalog = await getCatalog();
   return (
     <>
       <PageHero
@@ -20,7 +24,7 @@ export default function CatalogPage() {
       />
       <Container className="py-16 md:py-24">
         <ul className="grid gap-6 md:grid-cols-2">
-          {getCategories().map((c) => (
+          {sortedCategories(catalog).map((c) => (
             <li key={c.slug}>
               <Link href={`/catalogo/${c.slug}`} className="group flex h-full flex-col justify-between rounded-media bg-ivory p-8 shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-lift motion-reduce:transition-none motion-reduce:hover:translate-y-0 md:p-10">
                 <div>
@@ -29,7 +33,7 @@ export default function CatalogPage() {
                   <p className="mt-3 text-cocoa">{c.tagline}</p>
                 </div>
                 <p className="mt-10 flex items-center justify-between text-sm uppercase tracking-[0.2em] text-rose-deep">
-                  <span>{getServicesByCategory(c.slug).length} procedimentos cadastrados</span>
+                  <span>{servicesOfCategory(catalog, c.slug).length} procedimentos cadastrados</span>
                   <ArrowRight className="transition-transform group-hover:translate-x-2" aria-hidden />
                 </p>
               </Link>

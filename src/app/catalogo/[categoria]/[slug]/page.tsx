@@ -3,8 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronLeft, Info, RotateCcw } from "lucide-react";
 import { getCategory, getRelatedServices, getService } from "@/features/catalog/queries";
-import { services } from "@/features/catalog/data";
-import { serviceImages } from "@/features/catalog/media";
+import { getServices } from "@/features/catalog/queries";
 import { Container, Eyebrow } from "@/components/shared/PageHero";
 import { MediaSlot } from "@/components/shared/MediaSlot";
 import { PriceLine } from "@/components/shared/ServiceCard";
@@ -13,23 +12,25 @@ import { studio } from "@/lib/studio";
 
 type Params = { categoria: string; slug: string };
 
-export function generateStaticParams() {
-  return services.map((s) => ({ categoria: s.categorySlug, slug: s.slug }));
+export const revalidate = 300;
+
+export async function generateStaticParams() {
+  return (await getServices()).map((s) => ({ categoria: s.categorySlug, slug: s.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { categoria, slug } = await params;
-  const s = getService(categoria, slug);
+  const s = await getService(categoria, slug);
   if (!s) return {};
   return { title: s.name, description: s.description, alternates: { canonical: `/catalogo/${categoria}/${slug}` } };
 }
 
 export default async function ServicePage({ params }: { params: Promise<Params> }) {
   const { categoria, slug } = await params;
-  const service = getService(categoria, slug);
-  const category = getCategory(categoria);
+  const service = await getService(categoria, slug);
+  const category = await getCategory(categoria);
   if (!service || !category) notFound();
-  const related = getRelatedServices(service);
+  const related = await getRelatedServices(service);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -51,7 +52,7 @@ export default async function ServicePage({ params }: { params: Promise<Params> 
 
         <div className="grid gap-12 lg:grid-cols-12">
           <div className="lg:col-span-6">
-            <MediaSlot src={serviceImages[service.slug]} alt={`Espaço reservado: ${service.name}`} caption={`${service.name} — foto em breve`} ratio="4/5" priority />
+            <MediaSlot src={service.imageUrl} alt={service.imageUrl ? service.name : `Espaço reservado: ${service.name}`} caption={service.imageUrl ? service.name : `${service.name} — foto em breve`} ratio="4/5" priority />
           </div>
 
           <div className="lg:col-span-6 lg:pt-6">

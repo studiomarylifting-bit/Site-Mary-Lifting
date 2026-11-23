@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getCatalog } from "@/features/catalog/queries";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { ticketTypeLabels } from "@/lib/validation/schemas";
 import { TicketStatusBadge } from "@/features/sac/TicketStatusBadge";
@@ -14,6 +15,7 @@ async function count(table: string, filter?: [string, string]) {
 
 export default async function AdminDashboard() {
   const supabase = await createSupabaseServerClient();
+  const catalog = await getCatalog();
   const [clients, intakes, pendingFeedback, openTickets, privacy] = await Promise.all([
     count("profiles"), count("intake_forms"), count("feedback", ["status", "pending"]),
     count("sac_tickets", ["status", "open"]), count("privacy_requests", ["status", "received"]),
@@ -32,6 +34,12 @@ export default async function AdminDashboard() {
   return (
     <div className="space-y-12">
       <h1 className="text-5xl">Painel</h1>
+      <p className="-mt-6 text-sm text-cocoa">
+        Catálogo: {catalog.services.length} serviços em {catalog.categories.length} categorias ·{" "}
+        {catalog.source === "database"
+          ? "lido do Supabase."
+          : "usando o catálogo estático (Supabase sem migration/seed aplicados, ou indisponível). Veja docs/CATALOGO-SUPABASE.md."}
+      </p>
       <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {stats.map((s) => (
           <li key={s.label}>

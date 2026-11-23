@@ -3,7 +3,8 @@ import { Instagram, MapPin } from "lucide-react";
 import { getCategories } from "@/features/catalog/queries";
 import { studio } from "@/lib/studio";
 
-export function SiteFooter() {
+export async function SiteFooter() {
+  const categories = await getCategories();
   return (
     <footer className="on-dark mt-24 rounded-t-[2rem] bg-espresso text-nude md:rounded-t-[3.5rem]">
       <div className="mx-auto grid max-w-7xl gap-12 px-5 py-16 md:grid-cols-4 md:px-10 md:py-20">
@@ -18,7 +19,7 @@ export function SiteFooter() {
         <nav aria-label="Procedimentos">
           <h2 className="text-xs font-medium uppercase tracking-[0.25em] text-rose">Procedimentos</h2>
           <ul className="mt-5 space-y-3 text-sm">
-            {getCategories().map((c) => (
+            {categories.map((c) => (
               <li key={c.slug}>
                 <Link className="inline-block rounded-md py-1 transition-colors hover:text-ivory" href={`/catalogo/${c.slug}`}>{c.title}</Link>
               </li>

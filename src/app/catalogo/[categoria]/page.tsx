@@ -8,22 +8,24 @@ import { ServiceCard } from "@/components/shared/ServiceCard";
 
 type Params = { categoria: string };
 
-export function generateStaticParams() {
-  return getCategories().map((c) => ({ categoria: c.slug }));
+export const revalidate = 300;
+
+export async function generateStaticParams() {
+  return (await getCategories()).map((c) => ({ categoria: c.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { categoria } = await params;
-  const c = getCategory(categoria);
+  const c = await getCategory(categoria);
   if (!c) return {};
   return { title: c.title, description: c.tagline, alternates: { canonical: `/catalogo/${c.slug}` } };
 }
 
 export default async function CategoryPage({ params }: { params: Promise<Params> }) {
   const { categoria } = await params;
-  const category = getCategory(categoria);
+  const category = await getCategory(categoria);
   if (!category) notFound();
-  const items = getServicesByCategory(category.slug);
+  const items = await getServicesByCategory(category.slug);
 
   return (
     <>

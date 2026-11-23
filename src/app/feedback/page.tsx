@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { MessageSquareQuote } from "lucide-react";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { getServiceBySlug } from "@/features/catalog/queries";
+import { findServiceBySlug } from "@/features/catalog/catalog-core";
+import { getCatalog } from "@/features/catalog/queries";
 import { Container, PageHero } from "@/components/shared/PageHero";
 import { Stars } from "@/components/shared/Stars";
 import { Alert } from "@/components/ui/Alert";
@@ -30,6 +31,7 @@ async function loadFeedback(): Promise<{ items: PublicFeedback[]; unavailable: b
 }
 
 export default async function FeedbackPage() {
+  const catalog = await getCatalog();
   const { items, unavailable } = await loadFeedback();
 
   return (
@@ -55,7 +57,7 @@ export default async function FeedbackPage() {
                   <blockquote className="text-cocoa leading-relaxed">{f.comment}</blockquote>
                   <figcaption className="text-xs uppercase tracking-[0.18em] text-rose-deep">
                     {f.author}
-                    {f.procedure_slug && getServiceBySlug(f.procedure_slug) ? ` · ${getServiceBySlug(f.procedure_slug)?.name}` : ""}
+                    {f.procedure_slug && findServiceBySlug(catalog, f.procedure_slug) ? ` · ${findServiceBySlug(catalog, f.procedure_slug)?.name}` : ""}
                   </figcaption>
                 </figure>
               </li>

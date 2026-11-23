@@ -1,47 +1,38 @@
-import { categories, services } from "./data";
+import {
+  findCategory,
+  findService,
+  findServiceBySlug,
+  missingOptions,
+  relatedOf,
+  servicesOfCategory,
+  sortedCategories,
+} from "./catalog-core";
+import { getCatalog } from "./repository";
 import type { CategorySlug, Service, ServiceCategory } from "./types";
 
-export function getCategories(): ServiceCategory[] {
-  return [...categories].sort((a, b) => a.position - b.position);
-}
+export { getCatalog };
 
-export function getCategory(slug: string): ServiceCategory | undefined {
-  return categories.find((c) => c.slug === slug);
+export async function getCategories(): Promise<ServiceCategory[]> {
+  return sortedCategories(await getCatalog());
 }
-
-export function getServicesByCategory(slug: CategorySlug): Service[] {
-  return services.filter((s) => s.categorySlug === slug);
+export async function getServices(): Promise<Service[]> {
+  return (await getCatalog()).services;
 }
-
-export function getService(
-  categorySlug: string,
-  slug: string,
-): Service | undefined {
-  return services.find(
-    (s) => s.categorySlug === categorySlug && s.slug === slug,
-  );
+export async function getCategory(slug: string): Promise<ServiceCategory | undefined> {
+  return findCategory(await getCatalog(), slug);
 }
-
-export function getServiceBySlug(slug: string): Service | undefined {
-  return services.find((s) => s.slug === slug);
+export async function getServicesByCategory(slug: CategorySlug): Promise<Service[]> {
+  return servicesOfCategory(await getCatalog(), slug);
 }
-
-export function getRelatedServices(service: Service): Service[] {
-  return (service.relatedSlugs ?? [])
-    .map((slug) => getServiceBySlug(slug))
-    .filter((s): s is Service => Boolean(s));
+export async function getService(categorySlug: string, slug: string): Promise<Service | undefined> {
+  return findService(await getCatalog(), categorySlug, slug);
 }
-
-/**
- * Compara a quantidade informada pelo Studio com a cadastrada.
- * Usado na UI/admin para sinalizar opções ainda não fornecidas
- * (ex.: cílios 15 declaradas, 14 cadastradas) sem inventar itens.
- */
-export function getMissingOptionCount(slug: CategorySlug): number {
-  const category = getCategory(slug);
-  if (!category) return 0;
-  return Math.max(
-    0,
-    category.declaredOptionCount - getServicesByCategory(slug).length,
-  );
+export async function getServiceBySlug(slug: string): Promise<Service | undefined> {
+  return findServiceBySlug(await getCatalog(), slug);
+}
+export async function getRelatedServices(service: Service): Promise<Service[]> {
+  return relatedOf(await getCatalog(), service);
+}
+export async function getMissingOptionCount(slug: CategorySlug): Promise<number> {
+  return missingOptions(await getCatalog(), slug);
 }
