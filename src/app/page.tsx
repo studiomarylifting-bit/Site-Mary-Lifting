@@ -3,13 +3,13 @@ import {
   ArrowRight, ArrowUpRight, BadgeCheck, CreditCard, FileHeart, Instagram, LifeBuoy, LogIn,
   MapPin, MessageSquareQuote, Navigation, Quote, ShieldCheck, Sparkles, Star, UserPlus, UserRound,
 } from "lucide-react";
-import { getCategories } from "@/features/catalog/queries";
+import { sortedCategories } from "@/features/catalog/catalog-core";
+import { getCatalog } from "@/features/catalog/queries";
 import { LinkButton } from "@/components/ui/Button";
 import { Container, Eyebrow } from "@/components/shared/PageHero";
 import { MediaSlot } from "@/components/shared/MediaSlot";
-import { categoryImages } from "@/features/catalog/media";
 import { Faq } from "@/features/faq/Faq";
-import { buildFaqJsonLd, faqItems, serializeJsonLd } from "@/features/faq/data";
+import { buildFaqItems, buildFaqJsonLd, serializeJsonLd } from "@/features/faq/data";
 import { studio } from "@/lib/studio";
 
 const access = [
@@ -36,8 +36,13 @@ const tiles = [
   { span: "md:col-span-4", tone: "bg-ivory text-espresso shadow-soft", h: "text-espresso", sub: "text-cocoa", pill: "bg-blush text-rose-deep", dot: "bg-espresso text-ivory" },
 ] as const;
 
-export default function HomePage() {
-  const categories = getCategories();
+// Edições do catálogo no Supabase aparecem aqui em até 5 minutos.
+export const revalidate = 300;
+
+export default async function HomePage() {
+  const catalog = await getCatalog();
+  const categories = sortedCategories(catalog);
+  const faqItems = buildFaqItems(catalog.services);
 
   return (
     <>
@@ -116,7 +121,6 @@ export default function HomePage() {
           <ol className="mt-12 grid gap-4 md:grid-cols-6 md:gap-5">
             {categories.map((c, i) => {
               const t = tiles[i % tiles.length]!;
-              const img = categoryImages[c.slug];
               return (
                 <li key={c.slug} className={t.span}>
                   <Link
@@ -130,9 +134,9 @@ export default function HomePage() {
                       </span>
                     </div>
                     <div className="mt-10">
-                      {img && (
-                        // Quando houver foto real, ela entra aqui (ver src/features/catalog/media.ts).
-                        <MediaSlot src={img} alt={c.title} ratio="16/10" className="mb-6" />
+                      {c.imageUrl && (
+                        // Foto da categoria (image_path no Supabase). Sem foto, o card fica só tipográfico.
+                        <MediaSlot src={c.imageUrl} alt={c.title} ratio="16/10" className="mb-6" />
                       )}
                       <h3 className={`max-w-md text-3xl md:text-[2.6rem] md:leading-[1.02] ${t.h}`}>{c.title}</h3>
                       <p className={`mt-3 ${t.sub}`}>{c.tagline}</p>
@@ -228,7 +232,7 @@ export default function HomePage() {
         </Container>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: serializeJsonLd(buildFaqJsonLd()) }}
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(buildFaqJsonLd(faqItems)) }}
         />
       </section>
 

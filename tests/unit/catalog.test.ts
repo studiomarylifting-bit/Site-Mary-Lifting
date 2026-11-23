@@ -1,11 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { categories, services } from "@/features/catalog/data";
 import {
-  getCategories,
-  getMissingOptionCount,
-  getService,
-  getServicesByCategory,
-} from "@/features/catalog/queries";
+  findService,
+  missingOptions,
+  servicesOfCategory,
+  sortedCategories,
+  staticCatalog,
+} from "@/features/catalog/catalog-core";
+
+const catalog = staticCatalog();
 
 /** Valores informados pelo Studio (em centavos): [aplicação, manutenção?]. */
 const expected: Record<string, [number, number?]> = {
@@ -49,11 +52,11 @@ describe("catálogo", () => {
   });
 
   it("tem as 15 entradas de cílios informadas (14 técnicas + remoção)", () => {
-    expect(getServicesByCategory("cilios")).toHaveLength(15);
-    expect(getMissingOptionCount("cilios")).toBe(0);
-    expect(getMissingOptionCount("sobrancelhas")).toBe(0);
-    expect(getMissingOptionCount("depilacao")).toBe(0);
-    expect(getMissingOptionCount("labios")).toBe(0);
+    expect(servicesOfCategory(catalog, "cilios")).toHaveLength(15);
+    expect(missingOptions(catalog, "cilios")).toBe(0);
+    expect(missingOptions(catalog, "sobrancelhas")).toBe(0);
+    expect(missingOptions(catalog, "depilacao")).toBe(0);
+    expect(missingOptions(catalog, "labios")).toBe(0);
   });
 
   it("usa slugs únicos e categorias válidas", () => {
@@ -81,9 +84,9 @@ describe("catálogo", () => {
   });
 
   it("ordena categorias por posição e resolve serviço por categoria+slug", () => {
-    expect(getCategories().map((c) => c.index)).toEqual(["01", "02", "03", "04"]);
+    expect(sortedCategories(catalog).map((c) => c.index)).toEqual(["01", "02", "03", "04"]);
     const first = services[0];
-    expect(getService(first.categorySlug, first.slug)).toBe(first);
-    expect(getService("labios", first.slug)).toBeUndefined();
+    expect(findService(catalog, first.categorySlug, first.slug)?.slug).toBe(first.slug);
+    expect(findService(catalog, "labios", first.slug)).toBeUndefined();
   });
 });

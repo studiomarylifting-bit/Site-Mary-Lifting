@@ -1,4 +1,5 @@
-import { services } from "@/features/catalog/data";
+import { staticCatalog } from "@/features/catalog/catalog-core";
+import type { Service } from "@/features/catalog/types";
 import { formatBRL } from "@/lib/format";
 import { studio } from "@/lib/studio";
 
@@ -28,6 +29,11 @@ export interface FaqItem {
   reviewNote?: string;
 }
 
+/**
+ * Monta o FAQ a partir dos serviços atuais (preços e descrições vêm do catálogo,
+ * seja do banco ou do fallback estático).
+ */
+export function buildFaqItems(services: readonly Service[]): FaqItem[] {
 function methodLine(name: string): string | null {
   const s = services.find((x) => x.name === name);
   return s ? `${s.name}: ${s.description}` : null;
@@ -45,7 +51,7 @@ const effectBullets = [
   .map(methodLine)
   .filter((l): l is string => l !== null);
 
-export const faqItems: FaqItem[] = [
+  return [
   {
     id: "duracao",
     question: "Quanto tempo dura uma extensão de cílios?",
@@ -158,6 +164,10 @@ export const faqItems: FaqItem[] = [
     needsOwnerReview: false,
   },
 ];
+}
+
+/** FAQ com o catálogo estático (usado em testes e como fallback). */
+export const faqItems: FaqItem[] = buildFaqItems(staticCatalog().services);
 
 export function faqAnswerText(item: FaqItem): string {
   return [...item.answer, ...(item.bullets ?? [])].join(" ");

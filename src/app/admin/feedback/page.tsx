@@ -1,9 +1,11 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { getServiceBySlug } from "@/features/catalog/queries";
+import { findServiceBySlug } from "@/features/catalog/catalog-core";
+import { getCatalog } from "@/features/catalog/queries";
 import { Stars } from "@/components/shared/Stars";
 import { FeedbackModeration } from "@/features/feedback/FeedbackModeration";
 
 export default async function AdminFeedback() {
+  const catalog = await getCatalog();
   const supabase = await createSupabaseServerClient();
   if (!supabase) return null;
   const { data } = await supabase.from("feedback")
@@ -27,7 +29,7 @@ export default async function AdminFeedback() {
               <p className="whitespace-pre-wrap text-cocoa">{f.comment}</p>
               <p className="text-xs text-cocoa/85">
                 {f.anonymize ? "Exibição: Cliente (anônimo)" : `Exibição: ${f.display_name}`}
-                {f.procedure_slug && getServiceBySlug(f.procedure_slug) ? ` · ${getServiceBySlug(f.procedure_slug)?.name}` : ""}
+                {f.procedure_slug && findServiceBySlug(catalog, f.procedure_slug) ? ` · ${findServiceBySlug(catalog, f.procedure_slug)?.name}` : ""}
                 {" · "}{new Date(f.created_at).toLocaleDateString("pt-BR")}
               </p>
               <FeedbackModeration id={f.id} status={f.status} anonymize={f.anonymize} />

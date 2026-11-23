@@ -5,8 +5,8 @@ Node 20.11+ (testado com 22), npm, um projeto Supabase.
 
 ## 2. Supabase
 1. Crie um projeto em supabase.com.
-2. Aplique a migration `supabase/migrations/20261121000001_init_schema.sql` (SQL Editor, ou `supabase db push` com a CLI). Ela é **aditiva**: só cria objetos, sem `drop`/`truncate`.
-3. Aplique `supabase/seed.sql` (serviços públicos; idempotente). Para regenerar: `npm run seed:generate`.
+2. Aplique as migrations **em ordem** (SQL Editor, ou `supabase db push` com a CLI): `20261121000001_init_schema.sql` e `20261122000001_catalog_storage.sql`. São **aditivas**: sem `drop table`/`truncate`/`delete`, e idempotentes.
+3. Aplique `supabase/seed.sql` (4 categorias e 23 serviços, idempotente) e confira com `supabase/verify_catalog.sql` (somente leitura). Para regenerar o seed: `npm run seed:generate`. Imagens e `image_path`: [CATALOGO-IMAGENS.md](CATALOGO-IMAGENS.md).
 4. Em **Authentication → URL Configuration**, defina o Site URL e adicione `{SITE_URL}/auth/callback` em Redirect URLs.
 5. Em **Authentication → Providers → Email**, decida sobre confirmação de e-mail. O fluxo funciona com e sem ela.
 6. Copie a URL e a chave anon (Project Settings → API) para `.env.local`. A `service_role` fica **somente** no servidor e nunca recebe prefixo `NEXT_PUBLIC_`.

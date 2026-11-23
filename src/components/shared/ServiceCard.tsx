@@ -2,7 +2,6 @@ import Link from "next/link";
 import { formatBRL } from "@/lib/format";
 import type { Service } from "@/features/catalog/types";
 import { MediaSlot } from "./MediaSlot";
-import { serviceImages } from "@/features/catalog/media";
 
 export function PriceLine({ service }: { service: Service }) {
   return (
@@ -27,7 +26,7 @@ export function ServiceCard({ service }: { service: Service }) {
   return (
     <article className="group h-full rounded-media bg-ivory p-2.5 shadow-soft transition duration-300 hover:-translate-y-0.5 hover:shadow-lift motion-reduce:transition-none motion-reduce:hover:translate-y-0">
       <Link href={`/catalogo/${service.categorySlug}/${service.slug}`} className="flex h-full flex-col rounded-[1.25rem]" aria-label={`${service.name} — ver detalhes`}>
-        <MediaSlot src={serviceImages[service.slug]} alt={`Espaço reservado: ${service.name}`} caption={service.name} ratio="16/10" className="rounded-[1.25rem]" />
+        <MediaSlot src={service.imageUrl} alt={service.imageUrl ? service.name : `Espaço reservado: ${service.name}`} caption={service.name} ratio="16/10" className="rounded-[1.25rem]" />
         <div className="flex flex-1 flex-col gap-4 px-4 pb-4 pt-5">
           <h3 className="text-2xl md:text-3xl">{service.name}</h3>
           <p className="flex-1 text-sm leading-relaxed text-cocoa">{service.description}</p>

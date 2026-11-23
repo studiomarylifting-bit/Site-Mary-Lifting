@@ -32,6 +32,7 @@ Guia de configuração (Supabase, primeiro admin, e-mails): [docs/SETUP.md](docs
 | `npm run verify` | typecheck + lint + testes + build, em sequência |
 | `npm run check:env` | Mostra quais integrações estão configuradas (sem revelar valores) |
 | `npm run faq:review` | Regenera `docs/FAQ-REVISAO.md` (o que a proprietária precisa confirmar) |
+| `npm run test:db` | Migrations, seed e RLS/Storage num PostgreSQL local descartável (requer `psql`) |
 | `npm run audit:deps` | `npm audit --omit=dev` |
 
 ## Estrutura
@@ -61,4 +62,4 @@ Fonte única: `src/features/catalog/data.ts` (valores em centavos). A lista info
 
 ## Documentação
 
-- [Teste local](docs/TESTE-LOCAL.md) · [Design](docs/DESIGN.md) · [Revisão do FAQ](docs/FAQ-REVISAO.md) · [Setup](docs/SETUP.md) · [Segurança](docs/SECURITY.md) · [Privacidade e LGPD](docs/PRIVACY.md) · [Integrações](docs/INTEGRATIONS.md) · [Testes e estado de validação](docs/TESTING.md)
+- [Teste local](docs/TESTE-LOCAL.md) · [Design](docs/DESIGN.md) · [Catálogo e imagens](docs/CATALOGO-IMAGENS.md) · [Revisão do FAQ](docs/FAQ-REVISAO.md) · [Setup](docs/SETUP.md) · [Segurança](docs/SECURITY.md) · [Privacidade e LGPD](docs/PRIVACY.md) · [Integrações](docs/INTEGRATIONS.md) · [Testes e estado de validação](docs/TESTING.md)
