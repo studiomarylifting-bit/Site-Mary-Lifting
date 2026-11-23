@@ -42,6 +42,10 @@ select tt.expect('rejeita URL em image_path', tt.try('authenticated',:A,$q$updat
 select tt.expect('rejeita path traversal', tt.try('authenticated',:A,$q$update services set image_path='servicos/../x.png' where slug='volume-egipcio'$q$), 'ERRO:23514');
 select tt.expect('rejeita pasta errada (categorias/ em serviço)', tt.try('authenticated',:A,$q$update services set image_path='categorias/a.webp' where slug='volume-egipcio'$q$), 'ERRO:23514');
 select tt.expect('rejeita extensão não-imagem', tt.try('authenticated',:A,$q$update services set image_path='servicos/a.svg' where slug='volume-egipcio'$q$), 'ERRO:23514');
+select tt.expect('aceita nome com espaço e maiúscula', tt.try('authenticated',:A,$q$update services set image_path='servicos/Brow lamination.jpg' where slug='volume-egipcio'$q$), 'ok:1');
+select tt.expect('rejeita espaço no início', tt.try('authenticated',:A,$q$update services set image_path='servicos/ a.jpg' where slug='volume-egipcio'$q$), 'ERRO:23514');
+select tt.expect('rejeita ponto e vírgula', tt.try('authenticated',:A,$q$update services set image_path='servicos/a;b.jpg' where slug='volume-egipcio'$q$), 'ERRO:23514');
+select tt.expect('rejeita %-encoding', tt.try('authenticated',:A,$q$update services set image_path='servicos/a%20b.jpg' where slug='volume-egipcio'$q$), 'ERRO:23514');
 select tt.expect('admin pode limpar image_path (NULL)', tt.try('authenticated',:A,$q$update services set image_path=null where slug='volume-egipcio'$q$), 'ok:1');
 select tt.expect('categoria aceita categorias/...', tt.try('authenticated',:A,$q$update service_categories set image_path='categorias/cilios.jpg' where slug='cilios'$q$), 'ok:1');
 select tt.expect('categoria rejeita servicos/...', tt.try('authenticated',:A,$q$update service_categories set image_path='servicos/a.jpg' where slug='cilios'$q$), 'ERRO:23514');

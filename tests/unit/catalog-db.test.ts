@@ -24,11 +24,14 @@ describe("image_path / URL pública do Storage", () => {
     "categorias/cilios.avif",
     "studio/fachada.png",
     "home/hero.jpeg",
+    "servicos/Brow lamination.jpg",
+    "servicos/Efeito rImel Jade Picon.jpg",
+    "servicos/6D.jpg",
   ])("aceita %s", (p) => expect(isValidImagePath(p)).toBe(true));
 
   it.each([
     "", "volume.webp", "https://evil.com/a.jpg", "//evil.com/a.jpg", "/servicos/a.webp", "servicos/../x.png",
-    "servicos/a.svg", "servicos/a.gif", "servicos/.hidden.png", "outra/a.webp", "servicos/a b.webp",
+    "servicos/a.svg", "servicos/a.gif", "servicos/.hidden.png", "outra/a.webp", "servicos/ a.webp", "servicos/a;b.webp", "servicos/a%20b.webp", "servicos/a\\b.webp", "servicos/Vídeo.webp",
     "servicos/a.webp?x=1", "servicos/a.webp#frag",
   ])("rejeita %j", (p) => expect(isValidImagePath(p)).toBe(false));
 
@@ -44,6 +47,12 @@ describe("image_path / URL pública do Storage", () => {
       `${URL}/storage/v1/object/public/${CATALOG_BUCKET}/servicos/volume-egipcio.webp`,
     );
     expect(publicImageUrl("servicos/a.webp", URL + "///")).toBe(`${URL}/storage/v1/object/public/site-media/servicos/a.webp`);
+  });
+
+  it("codifica espaços na URL pública", () => {
+    expect(publicImageUrl("servicos/Brow lamination.jpg", URL)).toBe(
+      `${URL}/storage/v1/object/public/site-media/servicos/Brow%20lamination.jpg`,
+    );
   });
 
   it("sem caminho, sem base ou caminho inválido => undefined (placeholder)", () => {

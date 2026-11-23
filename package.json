@@ -18,7 +18,8 @@
     "check:env": "tsx scripts/check-env.ts",
     "verify": "npm run typecheck && npm run lint && npm test && npm run build",
     "faq:review": "tsx scripts/generate-faq-review.ts",
-    "test:db": "bash scripts/test-db.sh"
+    "test:db": "bash scripts/test-db.sh",
+    "link:images": "tsx scripts/link-images.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
