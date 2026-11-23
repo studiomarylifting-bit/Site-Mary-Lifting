@@ -7,7 +7,7 @@
 ## O que foi de fato executado (ambiente sem acesso ao npm)
 | Verificação | Resultado |
 | --- | --- |
-| Testes unitários de módulos puros (catálogo, formato, anti-spam, safe-next, mensagens) | **Executados e aprovados** (85/85, inclui FAQ e catálogo/Storage) com um mini-runner compatível com a API do Vitest, não com o Vitest real |
+| Testes unitários de módulos puros (catálogo, formato, anti-spam, safe-next, mensagens) | **Executados e aprovados** (96/96, inclui FAQ, catálogo/Storage e vínculo de imagens) com um mini-runner compatível com a API do Vitest, não com o Vitest real |
 | `scripts/generate-seed.ts` | Executado; `seed.sql` já estava atualizado (4 categorias, 23 serviços) |
 | Sintaxe TS/JSX (`tsc`) | Sem erros de sintaxe; **sem typecheck completo** |
 | RLS: todas as 12 tabelas com RLS ativado; migration sem operações destrutivas | Verificado por leitura do SQL; **não aplicado em um Postgres real** |

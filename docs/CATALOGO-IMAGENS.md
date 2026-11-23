@@ -80,6 +80,25 @@ Ou, sem SQL, no **Table Editor → services**, edite a célula `image_path` (ex.
 
 O banco **recusa** caminhos inválidos (URL, `..`, pasta errada ou extensão que não seja de imagem). Para voltar ao placeholder, deixe `image_path` vazio (NULL).
 
+### Vincular imagens já enviadas, em lote (ferramenta)
+
+Se você já enviou várias fotos, não precisa preencher uma por uma. A ferramenta compara os **nomes reais dos arquivos** com os serviços e gera o SQL. Ela só vincula quando o nome do arquivo (sem a extensão) é **idêntico ao slug** do serviço (ex.: `volume-egipcio.webp` → serviço `volume-egipcio`). Qualquer nome parecido vira apenas uma sugestão no relatório e **não** entra no SQL. Serviços sem arquivo ficam com `image_path` nulo.
+
+1. No **SQL Editor** do Supabase, rode esta consulta (somente leitura) para listar os arquivos:
+   ```sql
+   select name from storage.objects
+   where bucket_id = 'site-media' and name like 'servicos/%' and name not like '%.emptyFolderPlaceholder'
+   order by name;
+   ```
+2. Copie a coluna `name` do resultado para um arquivo `arquivos.txt` (um nome por linha; pode colar a tabela inteira) e rode:
+   ```bash
+   npm run link:images -- arquivos.txt
+   ```
+   O relatório mostra vinculados, serviços sem imagem, arquivos sem serviço, nomes recusados pelo banco e sugestões. Ele gera `supabase/link_images.sql` e `supabase/verify_images.sql`.
+3. **Leia o relatório.** Se algum arquivo ficou de fora por nome diferente do slug, renomeie o arquivo no Storage (ou me avise) e gere de novo.
+4. No SQL Editor, rode `supabase/link_images.sql`. Ele é uma transação: só altera `image_path`, é idempotente e **aborta tudo** se algum serviço da lista não existir.
+5. Rode `supabase/verify_images.sql` (somente leitura). A primeira tabela deve mostrar **OK** em todas as linhas. As demais listam serviços sem imagem, duplicidades, caminhos que não existem no Storage e arquivos sem serviço.
+
 ## 4. Como o site carrega a imagem
 1. Lê `image_path` do banco (a cada 5 minutos no máximo; as páginas se atualizam sozinhas).
 2. Monta a URL pública: `<SUPABASE_URL>/storage/v1/object/public/site-media/<image_path>`.

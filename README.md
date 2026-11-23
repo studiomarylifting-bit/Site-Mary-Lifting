@@ -33,6 +33,7 @@ Guia de configuração (Supabase, primeiro admin, e-mails): [docs/SETUP.md](docs
 | `npm run check:env` | Mostra quais integrações estão configuradas (sem revelar valores) |
 | `npm run faq:review` | Regenera `docs/FAQ-REVISAO.md` (o que a proprietária precisa confirmar) |
 | `npm run test:db` | Migrations, seed e RLS/Storage num PostgreSQL local descartável (requer `psql`) |
+| `npm run link:images -- arquivos.txt` | Gera o SQL que vincula imagens do Storage aos serviços (correspondência exata) |
 | `npm run audit:deps` | `npm audit --omit=dev` |
 
 ## Estrutura
