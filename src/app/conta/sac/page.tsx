@@ -29,7 +29,7 @@ export default async function MyTicketsPage() {
     <div className="space-y-8">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-[0.7rem] uppercase tracking-[0.3em] text-rose-deep">{tr("account.eyebrow")}</p>
+          <p className="text-xs uppercase tracking-[0.22em] text-rose-deep">{tr("account.eyebrow")}</p>
           <h1 className="mt-3 text-4xl sm:text-5xl">{tr("account.tickets.title")}</h1>
         </div>
         <LinkButton href="/sac" variant="outline">{tr("account.tickets.new")}</LinkButton>

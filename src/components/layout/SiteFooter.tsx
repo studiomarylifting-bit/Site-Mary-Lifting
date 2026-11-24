@@ -11,7 +11,7 @@ export async function SiteFooter() {
       <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 sm:grid-cols-2 md:px-10 md:py-20 lg:grid-cols-4 lg:gap-12">
         <div className="md:col-span-1">
           <p className="font-display text-3xl text-ivory">{t("brand.name")}</p>
-          <p className="pt-1 text-[0.65rem] uppercase tracking-[0.32em] text-rose">{t("brand.tagline")}</p>
+          <p className="pt-1 text-xs uppercase tracking-[0.24em] text-rose">{t("brand.tagline")}</p>
           <p className="mt-6 max-w-xs text-sm leading-relaxed text-sand">
             {t("brand.slogan")}
           </p>

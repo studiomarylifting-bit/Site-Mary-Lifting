@@ -101,7 +101,7 @@ export const CheckField = forwardRef<HTMLInputElement, CheckProps>(function Chec
           className={`check-control mt-0.5 cursor-pointer ${className}`} {...rest} />
         <label htmlFor={id} className="cursor-pointer text-sm leading-relaxed text-cocoa">
           {label}
-          {badge && <span className="ml-2 text-[0.65rem] uppercase tracking-widest text-rose-deep">{badge}</span>}
+          {badge && <span className="ml-2 text-xs uppercase tracking-widest text-rose-deep">{badge}</span>}
         </label>
       </div>
       {error && <p id={`${id}-error`} className="pl-9 text-xs font-medium text-rose-deep">{error}</p>}

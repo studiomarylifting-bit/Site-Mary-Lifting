@@ -52,7 +52,7 @@ export default async function HomePage() {
       <section className="relative overflow-x-clip">
         <Container className="grid items-center gap-14 pb-16 pt-10 md:pb-28 md:pt-16 lg:grid-cols-12 lg:gap-10">
           <div className="lg:col-span-7">
-            <p className="rise inline-flex rounded-full bg-blush px-4 py-2 text-[0.68rem] font-medium uppercase tracking-[0.26em] text-rose-deep">
+            <p className="rise inline-flex rounded-full bg-blush px-4 py-2 text-xs font-medium uppercase tracking-[0.2em] text-rose-deep">
               {t("brand.line")}
             </p>
             <h1 className="rise rise-2 mt-8 text-[3.25rem] leading-[0.95] sm:text-7xl lg:text-[6.6rem]">

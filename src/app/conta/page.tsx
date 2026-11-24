@@ -33,7 +33,7 @@ export default async function AccountHome() {
   return (
     <div className="space-y-10">
       <header>
-        <p className="text-[0.7rem] uppercase tracking-[0.3em] text-rose-deep">{t("account.eyebrow")}</p>
+        <p className="text-xs uppercase tracking-[0.22em] text-rose-deep">{t("account.eyebrow")}</p>
         <h1 className="mt-3 text-4xl sm:text-5xl md:text-6xl">{firstName ? t("account.home.helloNamed", { name: firstName }) : t("account.home.hello")}</h1>
       </header>
       {!intake.data && (

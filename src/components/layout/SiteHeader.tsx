@@ -93,7 +93,7 @@ export function SiteHeader({ viewer, brand }: { viewer: Viewer; brand: BrandImag
           <BrandMark brand={brand} />
           <span className="min-w-0">
             <span className="block truncate font-display text-2xl tracking-wide text-espresso md:text-3xl">{t("brand.name")}</span>
-            <span className="block truncate pt-1 text-[0.58rem] font-medium uppercase tracking-[0.28em] text-rose-deep sm:text-[0.62rem] sm:tracking-[0.32em]">
+            <span className="block truncate pt-1 text-xs font-medium uppercase tracking-[0.2em] text-rose-deep sm:tracking-[0.24em]">
               {t("brand.tagline")}
             </span>
           </span>

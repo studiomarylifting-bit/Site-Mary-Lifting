@@ -39,7 +39,7 @@ export default async function ConsentsPage() {
   return (
     <div className="space-y-8">
       <header>
-        <p className="text-[0.7rem] uppercase tracking-[0.3em] text-rose-deep">{t("account.eyebrow")}</p>
+        <p className="text-xs uppercase tracking-[0.22em] text-rose-deep">{t("account.eyebrow")}</p>
         <h1 className="mt-3 text-4xl sm:text-5xl">{t("account.consents.title")}</h1>
       </header>
       <Alert tone="info" title={t("account.consents.healthTitle")}>

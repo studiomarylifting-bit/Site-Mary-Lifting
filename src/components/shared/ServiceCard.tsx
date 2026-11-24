@@ -11,14 +11,14 @@ export function PriceLine({ service, t }: { service: Service; t: TFunction & { l
   return (
     <dl className="flex flex-wrap gap-x-8 gap-y-2 text-sm">
       <div>
-        <dt className="text-[0.68rem] font-medium uppercase tracking-[0.22em] text-rose-deep">
+        <dt className="text-xs font-medium uppercase tracking-[0.22em] text-rose-deep">
           {service.maintenanceCents !== undefined ? t("catalog.price.apply") : t("catalog.price.value")}
         </dt>
         <dd className="font-display text-3xl text-espresso">{fmt(service.priceCents)}</dd>
       </div>
       {service.maintenanceCents !== undefined && (
         <div>
-          <dt className="text-[0.68rem] font-medium uppercase tracking-[0.22em] text-rose-deep">{t("catalog.price.maintenance")}</dt>
+          <dt className="text-xs font-medium uppercase tracking-[0.22em] text-rose-deep">{t("catalog.price.maintenance")}</dt>
           <dd className="font-display text-3xl text-espresso">{fmt(service.maintenanceCents)}</dd>
         </div>
       )}
