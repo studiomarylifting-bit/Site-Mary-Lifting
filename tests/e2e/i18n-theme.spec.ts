@@ -13,7 +13,8 @@ test.describe("idioma", () => {
       // O seletor existe no cabeçalho (desktop) ou dentro do menu (celular).
       const menu = page.getByRole("button", { name: /abrir menu|open menu|abrir menú|apri il menu|fechar menu|close menu/i });
       if (await menu.isVisible()) await menu.click();
-      await page.getByLabel(/idioma|language|lingua/i).first().selectOption(value);
+      await page.getByRole("button", { name: /idioma|language|lingua/i }).first().click();
+      await page.getByRole("option", { name: new RegExp(`^${{ pt: "Português", en: "English", es: "Español", it: "Italiano" }[value]}`) }).click();
       await expect(page.locator("html")).toHaveAttribute("lang", lang);
       await expect(page.getByRole("link", { name: text }).first()).toBeVisible();
     }
@@ -38,6 +39,28 @@ test.describe("idioma", () => {
     await page.goto("/catalogo/sobrancelhas/brow-lamination");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Brow lamination");
     await expect(page.getByText(/Technique to align the hairs/i)).toBeVisible();
+  });
+});
+
+test.describe("marca", () => {
+  test("logo ao lado do nome troca com o tema e o favicon tem versão clara e escura", async ({ page }) => {
+    await page.emulateMedia({ colorScheme: "light" });
+    await page.goto("/");
+    await expect(page.locator("header .brand-light")).toBeVisible();
+    await expect(page.locator("header .brand-dark")).toBeHidden();
+    await page.emulateMedia({ colorScheme: "dark" });
+    await expect(page.locator("header .brand-dark")).toBeVisible();
+    await expect(page.locator("header .brand-light")).toBeHidden();
+    await expect(page.locator('link[rel="icon"][media*="dark"]')).toHaveAttribute("href", /icon-dark\.png/);
+  });
+
+  test("bandeiras no seletor de idioma", async ({ page }) => {
+    await page.goto("/");
+    const menu = page.getByRole("button", { name: /abrir menu/i });
+    if (await menu.isVisible()) await menu.click();
+    await page.getByRole("button", { name: /idioma/i }).first().click();
+    await expect(page.getByRole("option")).toHaveCount(4);
+    await expect(page.getByRole("option").first().locator("svg")).toBeVisible();
   });
 });
 
