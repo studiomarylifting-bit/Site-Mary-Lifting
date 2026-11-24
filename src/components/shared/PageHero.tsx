@@ -1,5 +1,5 @@
 export function Eyebrow({ children }: { children: React.ReactNode }) {
-  return <p className="text-[0.7rem] font-medium uppercase tracking-[0.3em] text-rose-deep">{children}</p>;
+  return <p className="text-xs font-medium uppercase tracking-[0.22em] text-rose-deep">{children}</p>;
 }
 
 /** Cabeçalho padrão das páginas internas. */

@@ -41,7 +41,7 @@ export function MediaPlaceholder({
       className={`relative flex flex-col items-center justify-center gap-3 overflow-hidden bg-nude/80 text-taupe ring-1 ring-inset ring-sand/40 ${mediaShapes[shape]} ${mediaAspects[ratio]} ${className}`}
     >
       <ImageIcon size={26} strokeWidth={1.2} aria-hidden />
-      {caption && <span className="px-6 text-center text-[0.68rem] font-medium uppercase tracking-[0.25em]">{caption}</span>}
+      {caption && <span className="px-6 text-center text-xs font-medium uppercase tracking-[0.2em]">{caption}</span>}
     </div>
   );
 }

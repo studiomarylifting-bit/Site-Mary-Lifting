@@ -64,7 +64,7 @@ export default async function StudioPage() {
             <MediaSlot alt={t("studio.envAlt")} caption={t("studio.envCaption")} ratio="4/5" />
             <div role="img" aria-label={t("studio.videoAlt")} className="flex aspect-[4/5] flex-col items-center justify-center gap-3 bg-espresso text-nude">
               <Video strokeWidth={1.2} aria-hidden />
-              <span className="text-[0.7rem] uppercase tracking-[0.25em]">{t("studio.videoSoon")}</span>
+              <span className="text-xs uppercase tracking-[0.2em]">{t("studio.videoSoon")}</span>
             </div>
           </div>
         </Container>

@@ -23,7 +23,7 @@ export default async function ProfilePage() {
   return (
     <div className="space-y-10">
       <header>
-        <p className="text-[0.7rem] uppercase tracking-[0.3em] text-rose-deep">{t("account.eyebrow")}</p>
+        <p className="text-xs uppercase tracking-[0.22em] text-rose-deep">{t("account.eyebrow")}</p>
         <h1 className="mt-3 text-4xl sm:text-5xl">{t("account.profile.title")}</h1>
       </header>
       <section className="max-w-xl space-y-4">
