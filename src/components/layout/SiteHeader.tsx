@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Menu, X, UserRound } from "lucide-react";
 import { useT } from "@/i18n/client";
+import { BrandMark } from "./BrandMark";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -41,6 +42,7 @@ export function SiteHeader() {
     document.body.style.overflow = "hidden";
     panelRef.current?.querySelector<HTMLElement>("a[href]")?.focus();
     const onKey = (e: KeyboardEvent) => {
+      if (e.defaultPrevented) return; // Esc já tratado (ex.: lista de idiomas aberta)
       if (e.key === "Escape") return close(true);
       if (e.key !== "Tab") return;
       const items = [toggleRef.current, ...(panelRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? [])].filter(
@@ -84,10 +86,13 @@ export function SiteHeader() {
     <header className={`sticky top-0 z-50 transition-shadow duration-300 ${scrolled || open ? "shadow-soft" : ""}`}>
       <div aria-hidden className="absolute inset-0 -z-10 bg-cream/90 backdrop-blur-md" />
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-5 md:h-20 md:px-10">
-        <Link href="/" className="min-w-0 rounded-md leading-none" aria-label={t("brand.homeAria")}>
-          <span className="block truncate font-display text-2xl tracking-wide text-espresso md:text-3xl">{t("brand.name")}</span>
-          <span className="block truncate pt-1 text-[0.58rem] font-medium uppercase tracking-[0.28em] text-rose-deep sm:text-[0.62rem] sm:tracking-[0.32em]">
-            {t("brand.tagline")}
+        <Link href="/" className="flex min-w-0 items-center gap-2.5 rounded-md leading-none sm:gap-3" aria-label={t("brand.homeAria")}>
+          <BrandMark />
+          <span className="min-w-0">
+            <span className="block truncate font-display text-2xl tracking-wide text-espresso md:text-3xl">{t("brand.name")}</span>
+            <span className="block truncate pt-1 text-[0.58rem] font-medium uppercase tracking-[0.28em] text-rose-deep sm:text-[0.62rem] sm:tracking-[0.32em]">
+              {t("brand.tagline")}
+            </span>
           </span>
         </Link>
 
@@ -162,7 +167,7 @@ export function SiteHeader() {
             <Link href="/cadastro" className="inline-flex min-h-12 items-center justify-center rounded-full px-5 py-3 text-cocoa underline underline-offset-4">
               {t("nav.signUp")}
             </Link>
-            <LanguageSwitcher className="mt-4" />
+            <LanguageSwitcher up className="mt-4" />
           </div>
         </div>
       )}

@@ -36,6 +36,13 @@ export async function generateMetadata(): Promise<Metadata> {
     description: t("meta.description"),
     openGraph: { type: "website", locale: localeMeta[t.locale].og, siteName: studio.fullName },
     robots: { index: true, follow: true },
+    // Favicon que acompanha o tema do navegador (aba clara ou escura).
+    icons: {
+      icon: [
+        { url: "/brand/icon-light.png", type: "image/png", media: "(prefers-color-scheme: light)" },
+        { url: "/brand/icon-dark.png", type: "image/png", media: "(prefers-color-scheme: dark)" },
+      ],
+    },
   };
 }
 
