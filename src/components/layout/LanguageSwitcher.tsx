@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, useTransition } from "react";
-import { Check, ChevronDown } from "lucide-react";
 import { setLocaleAction } from "@/i18n/actions";
 import { LOCALES, localeMeta, type Locale } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
@@ -20,6 +19,7 @@ export function LanguageSwitcher({ className = "", up = false }: { className?: s
   const root = useRef<HTMLDivElement>(null);
   const button = useRef<HTMLButtonElement>(null);
   const listId = useId();
+  const others = LOCALES.filter((l) => l !== locale);
 
   useEffect(() => {
     if (!open) return;
@@ -31,7 +31,7 @@ export function LanguageSwitcher({ className = "", up = false }: { className?: s
   }, [open]);
 
   function openList() {
-    setActive(Math.max(0, LOCALES.indexOf(locale)));
+    setActive(0);
     setOpen(true);
   }
   function choose(l: Locale) {
@@ -54,65 +54,65 @@ export function LanguageSwitcher({ className = "", up = false }: { className?: s
       button.current?.focus();
     } else if (e.key === "ArrowDown") {
       e.preventDefault();
-      setActive((i) => (i + 1) % LOCALES.length);
+      setActive((i) => (i + 1) % others.length);
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
-      setActive((i) => (i - 1 + LOCALES.length) % LOCALES.length);
+      setActive((i) => (i - 1 + others.length) % others.length);
     } else if (e.key === "Home") {
       e.preventDefault();
       setActive(0);
     } else if (e.key === "End") {
       e.preventDefault();
-      setActive(LOCALES.length - 1);
+      setActive(others.length - 1);
     } else if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-      choose(LOCALES[active]);
+      {
+        const next = others[active];
+        if (next) choose(next);
+      }
     } else if (e.key === "Tab") {
       setOpen(false);
     }
   }
 
   return (
-    <div ref={root} className={`relative ${className}`} onKeyDown={onKeyDown}>
+    <div ref={root} className={`relative inline-flex ${className}`} onKeyDown={onKeyDown}>
       <button
         ref={button}
         type="button"
         aria-label={`${t("language.label")}: ${localeMeta[locale].label}`}
-        aria-haspopup="listbox"
+        aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={open ? listId : undefined}
         disabled={pending}
         onClick={() => (open ? setOpen(false) : openList())}
-        className="inline-flex min-h-11 w-full items-center justify-between gap-2 rounded-full border border-stroke bg-ivory px-3.5 text-sm text-espresso transition-colors hover:border-taupe disabled:opacity-60"
+        className="inline-flex size-11 items-center justify-center rounded-full transition-opacity hover:opacity-80 disabled:opacity-60"
       >
-        <Flag locale={locale} />
-        <span className="sr-only sm:not-sr-only xl:sr-only 2xl:not-sr-only">{localeMeta[locale].label}</span>
-        <ChevronDown size={14} aria-hidden className={`text-cocoa transition-transform ${open ? "rotate-180" : ""}`} />
+        <Flag locale={locale} className="h-5 w-[1.875rem]" />
       </button>
       {open && (
         <ul
           id={listId}
-          role="listbox"
+          role="menu"
           aria-label={t("language.label")}
-          aria-activedescendant={`${listId}-${LOCALES[active]}`}
           tabIndex={-1}
           ref={(el) => el?.focus()}
-          className={`absolute right-0 z-[60] ${up ? "bottom-full mb-2" : "mt-2"} w-max min-w-full overflow-hidden rounded-2xl border border-line bg-ivory py-1 shadow-soft outline-none`}
+          className={`absolute left-1/2 z-[60] ${up ? "bottom-full mb-1" : "top-full mt-1"} flex -translate-x-1/2 flex-col items-center gap-1 rounded-full border border-line bg-ivory p-1 shadow-soft outline-none`}
         >
-          {LOCALES.map((l, i) => (
-            <li
-              key={l}
-              id={`${listId}-${l}`}
-              role="option"
-              lang={localeMeta[l].htmlLang}
-              aria-selected={l === locale}
-              onPointerEnter={() => setActive(i)}
-              onClick={() => choose(l)}
-              className={`flex min-h-11 cursor-pointer items-center gap-3 px-4 text-sm text-espresso ${i === active ? "bg-nude" : ""}`}
-            >
-              <Flag locale={l} />
-              <span className="flex-1">{localeMeta[l].label}</span>
-              {l === locale && <Check size={14} aria-hidden className="text-rose-deep" />}
+          {others.map((l, i) => (
+            <li key={l} role="none">
+              <button
+                type="button"
+                role="menuitem"
+                lang={localeMeta[l].htmlLang}
+                aria-label={localeMeta[l].label}
+                title={localeMeta[l].label}
+                onClick={() => choose(l)}
+                onPointerEnter={() => setActive(i)}
+                className={`inline-flex size-11 items-center justify-center rounded-full ${i === active ? "bg-nude" : ""}`}
+              >
+                <Flag locale={l} className="h-5 w-[1.875rem]" />
+              </button>
             </li>
           ))}
         </ul>

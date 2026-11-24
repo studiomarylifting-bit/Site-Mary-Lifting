@@ -14,7 +14,7 @@ test.describe("idioma", () => {
       const menu = page.getByRole("button", { name: /abrir menu|open menu|abrir menú|apri il menu|fechar menu|close menu/i });
       if (await menu.isVisible()) await menu.click();
       await page.getByRole("button", { name: /idioma|language|lingua/i }).first().click();
-      await page.getByRole("option", { name: new RegExp(`^${{ pt: "Português", en: "English", es: "Español", it: "Italiano" }[value]}`) }).click();
+      await page.getByRole("menuitem", { name: new RegExp(`^${{ pt: "Português", en: "English", es: "Español", it: "Italiano" }[value]}`) }).click();
       await expect(page.locator("html")).toHaveAttribute("lang", lang);
       await expect(page.getByRole("link", { name: text }).first()).toBeVisible();
     }
@@ -59,8 +59,8 @@ test.describe("marca", () => {
     const menu = page.getByRole("button", { name: /abrir menu/i });
     if (await menu.isVisible()) await menu.click();
     await page.getByRole("button", { name: /idioma/i }).first().click();
-    await expect(page.getByRole("option")).toHaveCount(4);
-    await expect(page.getByRole("option").first().locator("svg")).toBeVisible();
+    await expect(page.getByRole("menuitem")).toHaveCount(3); // só as outras bandeiras
+    await expect(page.getByRole("menuitem").first().locator("svg")).toBeVisible();
   });
 });
 
