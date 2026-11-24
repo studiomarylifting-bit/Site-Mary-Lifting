@@ -1,11 +1,15 @@
-const brl = new Intl.NumberFormat("pt-BR", {
-  style: "currency",
-  currency: "BRL",
-});
+const brlByLocale = new Map<string, Intl.NumberFormat>();
+const INTL: Record<string, string> = { pt: "pt-BR", en: "en-US", es: "es-ES", it: "it-IT" };
 
-/** 17000 -> "R$ 170,00" */
-export function formatBRL(cents: number): string {
-  return brl.format(cents / 100).replace(/ /g, " ");
+/** 17000 -> "R$ 170,00" (pt). Outros idiomas mudam só a pontuação ("R$170.00"); a moeda é sempre BRL. */
+export function formatBRL(cents: number, locale: string = "pt"): string {
+  const intl = INTL[locale] ?? "pt-BR";
+  let f = brlByLocale.get(intl);
+  if (!f) {
+    f = new Intl.NumberFormat(intl, { style: "currency", currency: "BRL" });
+    brlByLocale.set(intl, f);
+  }
+  return f.format(cents / 100).replace(/\u00a0/g, " ");
 }
 
 /** Mantém apenas dígitos. */

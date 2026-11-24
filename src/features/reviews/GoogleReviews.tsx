@@ -3,15 +3,18 @@ import { getGoogleReviews, type GoogleReview } from "@/server/integrations/googl
 import { Alert } from "@/components/ui/Alert";
 import { LinkButton } from "@/components/ui/Button";
 import { Stars } from "@/components/shared/Stars";
+import { getT } from "@/i18n/server";
+import type { TFunction } from "@/i18n/translate";
+import { localeMeta, type Locale } from "@/i18n/config";
 
-function formatDate(iso?: string): string | null {
+function formatDate(iso: string | undefined, locale: Locale): string | null {
   if (!iso) return null;
   const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? null : d.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+  return Number.isNaN(d.getTime()) ? null : d.toLocaleDateString(localeMeta[locale].intl, { month: "long", year: "numeric" });
 }
 
-function ReviewCard({ r }: { r: GoogleReview }) {
-  const date = formatDate(r.publishTime) ?? r.relativeTime;
+function ReviewCard({ r, t, locale }: { r: GoogleReview; t: TFunction; locale: Locale }) {
+  const date = formatDate(r.publishTime, locale) ?? r.relativeTime;
   return (
     <article className="flex h-full flex-col gap-4 rounded-media bg-ivory p-6 shadow-soft">
       <header className="flex items-center gap-3">
@@ -30,10 +33,10 @@ function ReviewCard({ r }: { r: GoogleReview }) {
         </div>
       </header>
       <Stars value={r.rating} />
-      {r.text ? <p className="flex-1 text-sm leading-relaxed text-cocoa">{r.text}</p> : <p className="flex-1 text-sm italic text-cocoa/85">Avaliação sem comentário.</p>}
+      {r.text ? <p className="flex-1 text-sm leading-relaxed text-cocoa">{r.text}</p> : <p className="flex-1 text-sm italic text-cocoa/85">{t("reviews.noComment")}</p>}
       {r.reviewUrl && (
         <a href={r.reviewUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-rose-deep hover:underline">
-          Ver no Google <ExternalLink size={12} aria-hidden />
+          {t("reviews.viewOnGoogle")} <ExternalLink size={12} aria-hidden />
         </a>
       )}
     </article>
@@ -42,23 +45,21 @@ function ReviewCard({ r }: { r: GoogleReview }) {
 
 /** Server Component: chave e Place ID nunca chegam ao navegador. */
 export async function GoogleReviews() {
-  const result = await getGoogleReviews();
+  const t = await getT();
+  const result = await getGoogleReviews(localeMeta[t.locale].htmlLang as "pt-BR" | "en" | "es" | "it");
 
   if (result.status === "not_configured") {
     return (
-      <Alert tone="info" title="Avaliações aguardando configuração">
-        A integração com o Google está pronta, mas ainda depende da configuração do Studio no servidor.
-        Nenhuma avaliação é exibida até lá: não mostramos dados de exemplo.
+      <Alert tone="info" title={t("reviews.notConfiguredTitle")}>
+        {t("reviews.notConfiguredText")}
       </Alert>
     );
   }
 
   if (result.status === "error") {
     return (
-      <Alert tone="error" title="Não foi possível carregar as avaliações agora">
-        {result.reason === "rate_limited"
-          ? "O limite de consultas ao Google foi atingido. Tente novamente em alguns minutos."
-          : "Tente novamente em instantes."}
+      <Alert tone="error" title={t("reviews.errorTitle")}>
+        {result.reason === "rate_limited" ? t("reviews.rateLimited") : t("reviews.retry")}
       </Alert>
     );
   }
@@ -66,9 +67,9 @@ export async function GoogleReviews() {
   if (result.status === "empty") {
     return (
       <div className="space-y-6">
-        <p className="text-cocoa">O Google ainda não retornou avaliações para o Studio.</p>
+        <p className="text-cocoa">{t("reviews.empty")}</p>
         <div className="flex flex-wrap gap-4">
-          <LinkButton external href={result.writeReviewUrl}><PenLine size={16} aria-hidden /> Escrever uma avaliação</LinkButton>
+          <LinkButton external href={result.writeReviewUrl}><PenLine size={16} aria-hidden /> {t("reviews.writeLong")}</LinkButton>
         </div>
       </div>
     );
@@ -79,25 +80,25 @@ export async function GoogleReviews() {
       <div className="flex flex-wrap items-end justify-between gap-6">
         {result.rating !== undefined && (
           <div className="flex items-center gap-4">
-            <p className="font-display text-6xl text-espresso">{result.rating.toFixed(1).replace(".", ",")}</p>
+            <p className="font-display text-6xl text-espresso">{result.rating.toLocaleString(localeMeta[t.locale].intl, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</p>
             <div>
               <Stars value={result.rating} size={20} />
-              {result.ratingCount !== undefined && <p className="mt-1 text-sm text-cocoa">{result.ratingCount} avaliações no Google</p>}
+              {result.ratingCount !== undefined && <p className="mt-1 text-sm text-cocoa">{t("reviews.count", { n: result.ratingCount })}</p>}
             </div>
           </div>
         )}
         <div className="flex flex-wrap gap-3">
-          {result.mapsUrl && <LinkButton external href={result.mapsUrl} variant="outline" arrow>Ver todas no Google</LinkButton>}
-          <LinkButton external href={result.writeReviewUrl}><PenLine size={16} aria-hidden /> Escrever avaliação</LinkButton>
+          {result.mapsUrl && <LinkButton external href={result.mapsUrl} variant="outline" arrow>{t("reviews.seeAll")}</LinkButton>}
+          <LinkButton external href={result.writeReviewUrl}><PenLine size={16} aria-hidden /> {t("reviews.write")}</LinkButton>
         </div>
       </div>
 
       <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {result.reviews.map((r, i) => <li key={`${r.authorName}-${i}`}><ReviewCard r={r} /></li>)}
+        {result.reviews.map((r, i) => <li key={`${r.authorName}-${i}`}><ReviewCard r={r} t={t} locale={t.locale} /></li>)}
       </ul>
 
       <p className="text-xs text-cocoa/85">
-        Avaliações fornecidas pelo Google (exibimos as mais relevantes retornadas pela API; para ver todas, acesse o Google). Google e Google Maps são marcas da Google LLC.
+        {t("reviews.disclaimer")}
       </p>
     </div>
   );

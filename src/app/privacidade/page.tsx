@@ -4,12 +4,13 @@ import { Alert } from "@/components/ui/Alert";
 import { PrivacyRequestForm } from "@/features/privacy/PrivacyRequestForm";
 import { legal, pending } from "@/features/privacy/legal-config";
 import { studio } from "@/lib/studio";
+import { getT } from "@/i18n/server";
+import { formatDate } from "@/i18n/format";
 
-export const metadata: Metadata = {
-  title: "Política de privacidade",
-  description: "Como o Studio Mary Lifting trata dados pessoais e dados de saúde.",
-  alternates: { canonical: "/privacidade" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return { title: t("legal.privacy.title"), description: t("legal.privacy.description"), alternates: { canonical: "/privacidade" } };
+}
 
 const P = ({ children }: { children: React.ReactNode }) => <p className="leading-relaxed text-cocoa">{children}</p>;
 const H = ({ id, children }: { id?: string; children: React.ReactNode }) => (
@@ -19,12 +20,15 @@ const UL = ({ items }: { items: string[] }) => (
   <ul className="list-disc space-y-2 pl-5 text-cocoa marker:text-rose">{items.map((i) => <li key={i}>{i}</li>)}</ul>
 );
 
-export default function PrivacyPage() {
+export default async function PrivacyPage() {
+  const t = await getT();
   const identified = Boolean(legal.controllerName && legal.privacyEmail);
   return (
     <>
-      <PageHero eyebrow="Privacidade e LGPD" title="Política de privacidade" lead={`Versão ${legal.version} · atualizada em ${new Date(legal.lastUpdated).toLocaleDateString("pt-BR")}.`} />
+      <PageHero eyebrow={t("legal.privacy.eyebrow")} title={t("legal.privacy.title")} lead={t("legal.privacy.lead", { version: legal.version, date: formatDate(legal.lastUpdated, t.locale) })} />
       <Container className="max-w-3xl space-y-4 py-16 md:py-24">
+        {t.locale !== "pt" && <Alert tone="info" title={t("legal.noticeTitle")}>{t("legal.noticeText")}</Alert>}
+        <div lang="pt-BR" className="space-y-4">
         {!identified && (
           <Alert tone="info" title="Documento em preparação">
             Alguns dados jurídicos (controlador, CNPJ/CPF, e-mail de privacidade, encarregado e prazos de retenção) ainda
@@ -93,6 +97,7 @@ export default function PrivacyPage() {
 
         <H>11. Alterações</H>
         <P>Esta política pode ser atualizada. A versão e a data constam no topo desta página.</P>
+        </div>
       </Container>
     </>
   );

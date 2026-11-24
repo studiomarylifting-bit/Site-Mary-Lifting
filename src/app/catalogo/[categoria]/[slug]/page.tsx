@@ -3,7 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronLeft, Info, RotateCcw } from "lucide-react";
 import { getCategory, getRelatedServices, getService } from "@/features/catalog/queries";
-import { getServices } from "@/features/catalog/queries";
+import { getStaticParamsCatalog } from "@/features/catalog/queries";
+import { getT } from "@/i18n/server";
 import { Container, Eyebrow } from "@/components/shared/PageHero";
 import { MediaSlot } from "@/components/shared/MediaSlot";
 import { PriceLine } from "@/components/shared/ServiceCard";
@@ -15,7 +16,7 @@ type Params = { categoria: string; slug: string };
 export const revalidate = 300;
 
 export async function generateStaticParams() {
-  return (await getServices()).map((s) => ({ categoria: s.categorySlug, slug: s.slug }));
+  return (await getStaticParamsCatalog()).services.map((s) => ({ categoria: s.categorySlug, slug: s.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
@@ -30,7 +31,7 @@ export default async function ServicePage({ params }: { params: Promise<Params> 
   const service = await getService(categoria, slug);
   const category = await getCategory(categoria);
   if (!service || !category) notFound();
-  const related = await getRelatedServices(service);
+  const [related, t] = await Promise.all([getRelatedServices(service), getT()]);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -45,44 +46,44 @@ export default async function ServicePage({ params }: { params: Promise<Params> 
     <article>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
       <Container className="py-10 md:py-16">
-        <nav aria-label="Navegação estrutural" className="mb-10 flex flex-wrap items-center gap-2 text-sm text-cocoa">
-          <Link href="/catalogo" className="hover:underline">Catálogo</Link> /
+        <nav aria-label={t("catalog.breadcrumb")} className="mb-10 flex flex-wrap items-center gap-2 text-sm text-cocoa">
+          <Link href="/catalogo" className="hover:underline">{t("catalog.eyebrow")}</Link> /
           <Link href={`/catalogo/${category.slug}`} className="hover:underline">{category.title}</Link>
         </nav>
 
         <div className="grid gap-12 lg:grid-cols-12">
           <div className="lg:col-span-6">
-            <MediaSlot src={service.imageUrl} alt={service.imageUrl ? service.name : `Espaço reservado: ${service.name}`} caption={service.imageUrl ? service.name : `${service.name} — foto em breve`} ratio="4/5" priority />
+            <MediaSlot src={service.imageUrl} alt={service.imageUrl ? service.name : t("catalog.placeholderAlt", { name: service.name })} caption={service.imageUrl ? service.name : t("catalog.photoSoon", { name: service.name })} ratio="4/5" priority />
           </div>
 
           <div className="lg:col-span-6 lg:pt-6">
             <Eyebrow>{category.title}</Eyebrow>
-            <h1 className="mt-4 text-5xl md:text-7xl">{service.name}</h1>
+            <h1 className="mt-4 text-4xl sm:text-5xl md:text-7xl">{service.name}</h1>
             <p className="mt-6 text-lg leading-relaxed text-cocoa">{service.description}</p>
 
-            <div className="mt-10 border-y border-line py-8"><PriceLine service={service} /></div>
+            <div className="mt-10 border-y border-line py-8"><PriceLine service={service} t={t} /></div>
 
             <ul className="mt-8 space-y-4 text-sm text-cocoa">
               {service.returnInfo && (
-                <li className="flex gap-3"><RotateCcw size={18} className="mt-0.5 shrink-0 text-rose-deep" aria-hidden /><span><strong className="font-medium text-espresso">Retorno.</strong> {service.returnInfo}</span></li>
+                <li className="flex gap-3"><RotateCcw size={18} className="mt-0.5 shrink-0 text-rose-deep" aria-hidden /><span><strong className="font-medium text-espresso">{t("catalog.return")}</strong> {service.returnInfo}</span></li>
               )}
               {service.notes?.map((n) => (
-                <li key={n} className="flex gap-3"><Info size={18} className="mt-0.5 shrink-0 text-rose-deep" aria-hidden /><span><strong className="font-medium text-espresso">Importante.</strong> {n}</span></li>
+                <li key={n} className="flex gap-3"><Info size={18} className="mt-0.5 shrink-0 text-rose-deep" aria-hidden /><span><strong className="font-medium text-espresso">{t("catalog.important")}</strong> {n}</span></li>
               ))}            </ul>
 
             <div className="mt-10 flex flex-wrap gap-4">
-              <LinkButton href={`/sac?assunto=${encodeURIComponent(service.name)}&tipo=agendamento`} arrow>Solicitar atendimento</LinkButton>
-              <LinkButton href="/conta/ficha" variant="outline">Ficha de atendimento</LinkButton>
+              <LinkButton href={`/sac?assunto=${encodeURIComponent(service.name)}&tipo=agendamento`} arrow>{t("catalog.request")}</LinkButton>
+              <LinkButton href="/conta/ficha" variant="outline">{t("catalog.intake")}</LinkButton>
             </div>
             <Link href={`/catalogo/${category.slug}`} className="mt-8 inline-flex items-center gap-1 text-sm text-cocoa hover:underline">
-              <ChevronLeft size={16} aria-hidden /> Voltar para {category.title}
+              <ChevronLeft size={16} aria-hidden /> {t("catalog.backTo", { name: category.title })}
             </Link>
           </div>
         </div>
 
         {related.length > 0 && (
           <section aria-labelledby="relacionados" className="mt-20 border-t border-line pt-12">
-            <h2 id="relacionados" className="text-3xl">Veja também</h2>
+            <h2 id="relacionados" className="text-3xl">{t("catalog.related")}</h2>
             <ul className="mt-6 flex flex-wrap gap-4">
               {related.map((r) => (
                 <li key={r.slug}><LinkButton href={`/catalogo/${r.categorySlug}/${r.slug}`} variant="outline">{r.name}</LinkButton></li>

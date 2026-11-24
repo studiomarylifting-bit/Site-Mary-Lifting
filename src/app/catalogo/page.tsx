@@ -4,23 +4,23 @@ import { ArrowRight } from "lucide-react";
 import { servicesOfCategory, sortedCategories } from "@/features/catalog/catalog-core";
 import { getCatalog } from "@/features/catalog/queries";
 import { Container, PageHero } from "@/components/shared/PageHero";
+import { getT } from "@/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Catálogo de procedimentos",
-  description: "Extensão de cílios, brow lamination, design de sobrancelhas, depilação facial, Hidra Gloss Color e Nano Lips.",
-  alternates: { canonical: "/catalogo" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return { title: t("catalog.meta.title"), description: t("catalog.meta.description"), alternates: { canonical: "/catalogo" } };
+}
 
 export const revalidate = 300;
 
 export default async function CatalogPage() {
-  const catalog = await getCatalog();
+  const [catalog, t] = await Promise.all([getCatalog(), getT()]);
   return (
     <>
       <PageHero
-        eyebrow="Catálogo"
-        title="Escolha o cuidado que combina com você"
-        lead="Conheça os procedimentos, valores, retornos e informações importantes de cada atendimento."
+        eyebrow={t("catalog.eyebrow")}
+        title={t("catalog.title")}
+        lead={t("catalog.lead")}
       />
       <Container className="py-16 md:py-24">
         <ul className="grid gap-6 md:grid-cols-2">
@@ -33,7 +33,7 @@ export default async function CatalogPage() {
                   <p className="mt-3 text-cocoa">{c.tagline}</p>
                 </div>
                 <p className="mt-10 flex items-center justify-between text-sm uppercase tracking-[0.2em] text-rose-deep">
-                  <span>{servicesOfCategory(catalog, c.slug).length} procedimentos cadastrados</span>
+                  <span>{t("catalog.registered", { n: servicesOfCategory(catalog, c.slug).length })}</span>
                   <ArrowRight className="transition-transform group-hover:translate-x-2" aria-hidden />
                 </p>
               </Link>

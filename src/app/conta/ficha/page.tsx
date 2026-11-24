@@ -4,10 +4,15 @@ import { getSessionUser } from "@/server/policies/authz";
 import { formatBrazilPhone } from "@/lib/format";
 import { IntakeForm, type IntakeValues } from "@/features/intake/IntakeForm";
 import { DeleteIntakeButton } from "@/features/intake/DeleteIntakeButton";
+import { getT } from "@/i18n/server";
 
-export const metadata: Metadata = { title: "Ficha de atendimento" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return { title: t("account.intake.title") };
+}
 
 export default async function IntakePage() {
+  const t = await getT();
   const user = await getSessionUser();
   const supabase = await createSupabaseServerClient();
   if (!user || !supabase) return null;
@@ -32,14 +37,14 @@ export default async function IntakePage() {
   return (
     <div className="space-y-8">
       <header>
-        <p className="text-[0.7rem] uppercase tracking-[0.3em] text-rose-deep">Minha conta</p>
-        <h1 className="mt-3 text-5xl">Ficha de atendimento</h1>
+        <p className="text-[0.7rem] uppercase tracking-[0.3em] text-rose-deep">{t("account.eyebrow")}</p>
+        <h1 className="mt-3 text-4xl sm:text-5xl">{t("account.intake.title")}</h1>
       </header>
       <IntakeForm initial={initial} hasExisting={Boolean(form)} />
       {form && (
         <section className="border-t border-line pt-8">
-          <h2 className="text-2xl">Excluir minha ficha</h2>
-          <p className="mt-2 max-w-xl text-sm text-cocoa">Remove definitivamente as respostas da ficha. Seu cadastro e histórico de consentimentos permanecem.</p>
+          <h2 className="text-2xl">{t("account.intake.deleteTitle")}</h2>
+          <p className="mt-2 max-w-xl text-sm text-cocoa">{t("account.intake.deleteText")}</p>
           <div className="mt-4"><DeleteIntakeButton /></div>
         </section>
       )}

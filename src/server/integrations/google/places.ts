@@ -87,12 +87,13 @@ export function mapPlacesResponse(data: PlacesApiResponse, placeId: string): Goo
   };
 }
 
-export async function getGoogleReviews(): Promise<GoogleReviewsResult> {
+/** languageCode: idioma do texto relativo ("há 2 semanas") e do nome dos locais; o texto da avaliação é do autor. */
+export async function getGoogleReviews(languageCode: "pt-BR" | "en" | "es" | "it" = "pt-BR"): Promise<GoogleReviewsResult> {
   const env = getGoogleEnv();
   if (!env) return { status: "not_configured" };
 
   try {
-    const url = `https://places.googleapis.com/v1/places/${encodeURIComponent(env.placeId)}?languageCode=pt-BR`;
+    const url = `https://places.googleapis.com/v1/places/${encodeURIComponent(env.placeId)}?languageCode=${languageCode}`;
     const res = await fetch(url, {
       headers: { "X-Goog-Api-Key": env.apiKey, "X-Goog-FieldMask": FIELD_MASK },
       next: { revalidate: REVALIDATE_SECONDS },

@@ -2,6 +2,11 @@ import { staticCatalog } from "@/features/catalog/catalog-core";
 import type { Service } from "@/features/catalog/types";
 import { formatBRL } from "@/lib/format";
 import { studio } from "@/lib/studio";
+import { dictionary } from "@/i18n/messages";
+import { createT, type TFunction } from "@/i18n/translate";
+
+/** Tradutor em português: idioma-fonte, usado em testes, no FAQ estático e na revisão da proprietária. */
+const ptT = createT(dictionary.pt);
 
 /**
  * FAQ da home. REGRA: toda resposta vem do conteúdo já fornecido pelo Studio
@@ -31,139 +36,110 @@ export interface FaqItem {
 
 /**
  * Monta o FAQ a partir dos serviços atuais (preços e descrições vêm do catálogo,
- * seja do banco ou do fallback estático).
+ * seja do banco ou do fallback estático) e do tradutor do idioma ativo.
  */
-export function buildFaqItems(services: readonly Service[]): FaqItem[] {
-function methodLine(name: string): string | null {
-  const s = services.find((x) => x.name === name);
-  return s ? `${s.name}: ${s.description}` : null;
-}
+export function buildFaqItems(services: readonly Service[], t: TFunction = ptT): FaqItem[] {
+  // Busca por slug (estável entre idiomas e edições de nome no banco).
+  const bySlug = (slug: string) => services.find((x) => x.slug === slug);
+  const methodLine = (slug: string): string | null => {
+    const s = bySlug(slug);
+    return s ? `${s.name}: ${s.description}` : null;
+  };
+  const removal = bySlug("remocao-de-extensao");
+  const effectBullets = ["fio-a-fio-classico", "volume-brasileiro", "volume-egipcio", "mega-volume", "fox-easy"]
+    .map(methodLine)
+    .filter((l): l is string => l !== null);
 
-const removal = services.find((s) => s.name === "Remoção de extensão");
-
-const effectBullets = [
-  "Fio a fio clássico",
-  "Volume brasileiro",
-  "Volume egípcio",
-  "Mega volume",
-  "Fox Easy",
-]
-  .map(methodLine)
-  .filter((l): l is string => l !== null);
+  const methods = [t("payments.cash"), t("payments.pix"), t("payments.card"), t("payments.link")]
+    .map((m) => m.toLowerCase())
+    .join(", ")
+    .replace(/, ([^,]+)$/, ` ${t("faq.and")} $1`);
 
   return [
-  {
-    id: "duracao",
-    question: "Quanto tempo dura uma extensão de cílios?",
-    answer: [
-      "A duração varia de pessoa para pessoa e depende do método escolhido e dos cuidados em casa.",
-      "Nos métodos de aplicação, o Studio informa retorno para manutenção em até 30 dias (consulte as condições de cada procedimento). Para saber o que esperar no seu caso, converse com o Studio.",
-    ],
-    links: [
-      { href: "/catalogo/cilios", label: "Ver métodos e valores" },
-      { href: "/sac?tipo=duvida", label: "Perguntar ao Studio" },
-    ],
-    needsOwnerReview: true,
-    reviewNote: "Informar o tempo médio de duração por método, se desejado. Hoje só o prazo de retorno (30 dias) consta no catálogo.",
-  },
-  {
-    id: "efeitos",
-    question: "Qual a diferença entre os efeitos de extensão?",
-    answer: [
-      "Cada método muda o preenchimento e o desenho do olhar. Alguns exemplos do catálogo:",
-      "Vários métodos também têm a versão com fios castanhos. Todos os efeitos, valores de aplicação e manutenção estão no catálogo.",
-    ],
-    bullets: effectBullets,
-    links: [{ href: "/catalogo/cilios", label: "Ver todos os efeitos" }],
-    needsOwnerReview: false,
-  },
-  {
-    id: "cuidados",
-    question: "Como cuidar das extensões após o procedimento?",
-    answer: [
-      "As orientações de cuidado são passadas pelo Studio no atendimento, de acordo com o método aplicado.",
-      "Uma recomendação já informada no catálogo: não remova os fios em casa. A remoção deve ser feita com produto e técnica apropriados.",
-      "Ficou com alguma dúvida depois do atendimento? Envie pelo SAC, no tipo Pós-atendimento.",
-    ],
-    links: [{ href: "/sac?tipo=pos_atendimento", label: "Dúvida pós-atendimento" }],
-    needsOwnerReview: true,
-    reviewNote: "Incluir as orientações oficiais de cuidado pós-procedimento (lavagem, produtos, o que evitar).",
-  },
-  {
-    id: "manutencao-outra-profissional",
-    question: "Posso realizar manutenção de uma extensão feita por outra profissional?",
-    answer: [
-      "Cada caso precisa ser avaliado pelo Studio, e as condições para esse tipo de manutenção ainda não estão informadas aqui.",
-      "Envie sua dúvida pelo SAC para receber a orientação correta antes de agendar.",
-      removal
-        ? `Se preferir retirar a extensão, o Studio oferece o serviço de remoção (${formatBRL(removal.priceCents)}).`
-        : "Se preferir retirar a extensão, consulte o serviço de remoção no catálogo.",
-    ],
-    links: [
-      { href: "/sac?tipo=procedimento", label: "Perguntar ao Studio" },
-      { href: "/catalogo/cilios", label: "Ver catálogo" },
-    ],
-    needsOwnerReview: true,
-    reviewNote: "Definir se o Studio faz manutenção em extensão de outra profissional e em que condições (valor, prazo, avaliação prévia).",
-  },
-  {
-    id: "contraindicacoes",
-    question: "Existem contraindicações para os procedimentos?",
-    answer: [
-      "Cada pessoa é avaliada individualmente, e só o Studio pode definir se um procedimento é adequado ao seu caso.",
-      "Por isso existe a ficha de atendimento: nela você informa alergias, medicamentos, gestação ou amamentação, sensibilidade da pele e dos olhos, uso de lentes de contato, procedimentos recentes e reações anteriores. A ficha é revisada e não substitui a avaliação do atendimento.",
-      "Se não souber responder algum item, você pode escrever que prefere conversar na avaliação.",
-    ],
-    links: [
-      { href: "/conta/ficha", label: "Preencher a ficha" },
-      { href: "/sac?tipo=procedimento", label: "Tirar uma dúvida" },
-    ],
-    needsOwnerReview: true,
-    reviewNote: "Listar, com orientação profissional, as contraindicações e situações que exigem adiar ou adaptar cada procedimento.",
-  },
-  {
-    id: "escolher-efeito",
-    question: "Como faço para escolher o efeito ideal para mim?",
-    answer: [
-      "Comece pelo resultado que você imagina: natural e discreto, marcante ou com mais preenchimento. O catálogo descreve cada método e mostra os valores de aplicação e de manutenção.",
-      "Na ficha de atendimento você registra seu objetivo e suas preferências, e o Studio ajuda a decidir na avaliação.",
-    ],
-    links: [
-      { href: "/catalogo", label: "Explorar o catálogo" },
-      { href: "/sac?tipo=duvida", label: "Falar com o Studio" },
-    ],
-    needsOwnerReview: false,
-  },
-  {
-    id: "pagamento",
-    question: "Quais são as formas de pagamento?",
-    answer: [
-      `O Studio aceita ${studio.paymentMethods
-        .map((m) => m.toLowerCase())
-        .join(", ")
-        .replace(/, ([^,]+)$/, " e $1")}.`,
-      "Dúvidas sobre valores ou condições? Fale com o Studio pelo SAC.",
-    ],
-    links: [
-      { href: "/pagamentos", label: "Ver formas de pagamento" },
-      { href: "/sac?tipo=financeiro", label: "Dúvida financeira" },
-    ],
-    needsOwnerReview: false,
-  },
-  {
-    id: "localizacao",
-    question: "Onde fica o Studio Mary Lifting?",
-    answer: [
-      `O Studio fica na ${studio.address.display}.`,
-      "Você pode abrir o endereço direto no GPS.",
-    ],
-    links: [
-      { href: studio.maps.gps, label: "Abrir no GPS", external: true },
-      { href: "/studio", label: "Conheça o Studio" },
-    ],
-    needsOwnerReview: false,
-  },
-];
+    {
+      id: "duracao",
+      question: t("faq.duracao.q"),
+      answer: [t("faq.duracao.a1"), t("faq.duracao.a2")],
+      links: [
+        { href: "/catalogo/cilios", label: t("faq.duracao.l1") },
+        { href: "/sac?tipo=duvida", label: t("faq.duracao.l2") },
+      ],
+      needsOwnerReview: true,
+      reviewNote: "Informar o tempo médio de duração por método, se desejado. Hoje só o prazo de retorno (30 dias) consta no catálogo.",
+    },
+    {
+      id: "efeitos",
+      question: t("faq.efeitos.q"),
+      answer: [t("faq.efeitos.a1"), t("faq.efeitos.a2")],
+      bullets: effectBullets,
+      links: [{ href: "/catalogo/cilios", label: t("faq.efeitos.l1") }],
+      needsOwnerReview: false,
+    },
+    {
+      id: "cuidados",
+      question: t("faq.cuidados.q"),
+      answer: [t("faq.cuidados.a1"), t("faq.cuidados.a2"), t("faq.cuidados.a3")],
+      links: [{ href: "/sac?tipo=pos_atendimento", label: t("faq.cuidados.l1") }],
+      needsOwnerReview: true,
+      reviewNote: "Incluir as orientações oficiais de cuidado pós-procedimento (lavagem, produtos, o que evitar).",
+    },
+    {
+      id: "manutencao-outra-profissional",
+      question: t("faq.manutencao.q"),
+      answer: [
+        t("faq.manutencao.a1"),
+        t("faq.manutencao.a2"),
+        removal ? t("faq.manutencao.a3", { price: formatBRL(removal.priceCents, (t as { locale?: string }).locale) }) : t("faq.manutencao.a3none"),
+      ],
+      links: [
+        { href: "/sac?tipo=procedimento", label: t("faq.manutencao.l1") },
+        { href: "/catalogo/cilios", label: t("faq.manutencao.l2") },
+      ],
+      needsOwnerReview: true,
+      reviewNote: "Definir se o Studio faz manutenção em extensão de outra profissional e em que condições (valor, prazo, avaliação prévia).",
+    },
+    {
+      id: "contraindicacoes",
+      question: t("faq.contra.q"),
+      answer: [t("faq.contra.a1"), t("faq.contra.a2"), t("faq.contra.a3")],
+      links: [
+        { href: "/conta/ficha", label: t("faq.contra.l1") },
+        { href: "/sac?tipo=procedimento", label: t("faq.contra.l2") },
+      ],
+      needsOwnerReview: true,
+      reviewNote: "Listar, com orientação profissional, as contraindicações e situações que exigem adiar ou adaptar cada procedimento.",
+    },
+    {
+      id: "escolher-efeito",
+      question: t("faq.escolher.q"),
+      answer: [t("faq.escolher.a1"), t("faq.escolher.a2")],
+      links: [
+        { href: "/catalogo", label: t("faq.escolher.l1") },
+        { href: "/sac?tipo=duvida", label: t("faq.escolher.l2") },
+      ],
+      needsOwnerReview: false,
+    },
+    {
+      id: "pagamento",
+      question: t("faq.pagamento.q"),
+      answer: [t("faq.pagamento.a1", { methods }), t("faq.pagamento.a2")],
+      links: [
+        { href: "/pagamentos", label: t("faq.pagamento.l1") },
+        { href: "/sac?tipo=financeiro", label: t("faq.pagamento.l2") },
+      ],
+      needsOwnerReview: false,
+    },
+    {
+      id: "localizacao",
+      question: t("faq.local.q"),
+      answer: [t("faq.local.a1", { address: studio.address.display }), t("faq.local.a2")],
+      links: [
+        { href: studio.maps.gps, label: t("faq.local.l1"), external: true },
+        { href: "/studio", label: t("faq.local.l2") },
+      ],
+      needsOwnerReview: false,
+    },
+  ];
 }
 
 /** FAQ com o catálogo estático (usado em testes e como fallback). */

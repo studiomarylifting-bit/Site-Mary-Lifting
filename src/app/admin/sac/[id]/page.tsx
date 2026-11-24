@@ -5,9 +5,11 @@ import { formatBrazilPhone } from "@/lib/format";
 import { ticketTypeLabels } from "@/lib/validation/schemas";
 import { TicketAdminPanel } from "@/features/sac/TicketAdminPanel";
 import { TicketStatusBadge } from "@/features/sac/TicketStatusBadge";
+import { getT } from "@/i18n/server";
+import { formatDate } from "@/i18n/format";
 
 export default async function AdminTicket({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+  const [{ id }, tr] = await Promise.all([params, getT()]);
   if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
   const supabase = await createSupabaseServerClient();
   if (!supabase) notFound();
@@ -19,28 +21,28 @@ export default async function AdminTicket({ params }: { params: Promise<{ id: st
 
   return (
     <div className="space-y-8">
-      <Link href="/admin/sac" className="text-sm underline underline-offset-4">← SAC</Link>
+      <Link href="/admin/sac" className="text-sm underline underline-offset-4">{tr("admin.sac.back")}</Link>
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-rose-deep">{t.protocol} · {ticketTypeLabels[t.type as keyof typeof ticketTypeLabels]}</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-rose-deep">{t.protocol} · {ticketTypeLabels[t.type as keyof typeof ticketTypeLabels] ? tr(`sac.types.${t.type}`) : t.type}</p>
           <h1 className="mt-2 text-4xl md:text-5xl">{t.subject}</h1>
         </div>
         <TicketStatusBadge status={t.status} />
       </header>
       <dl className="grid gap-4 text-sm sm:grid-cols-3">
-        <div><dt className="text-xs uppercase tracking-[0.15em] text-rose-deep">Nome</dt><dd>{t.name}</dd></div>
-        <div><dt className="text-xs uppercase tracking-[0.15em] text-rose-deep">E-mail</dt><dd>{t.email}</dd></div>
-        <div><dt className="text-xs uppercase tracking-[0.15em] text-rose-deep">Celular</dt><dd>{formatBrazilPhone(t.phone)}</dd></div>
+        <div><dt className="text-xs uppercase tracking-[0.15em] text-rose-deep">{tr("admin.sac.name")}</dt><dd>{t.name}</dd></div>
+        <div><dt className="text-xs uppercase tracking-[0.15em] text-rose-deep">{tr("admin.sac.email")}</dt><dd>{t.email}</dd></div>
+        <div><dt className="text-xs uppercase tracking-[0.15em] text-rose-deep">{tr("admin.sac.phone")}</dt><dd>{formatBrazilPhone(t.phone)}</dd></div>
       </dl>
       <section className="rounded-card bg-ivory shadow-soft p-6">
-        <p className="text-xs text-cocoa/85">{new Date(t.created_at).toLocaleString("pt-BR")}</p>
+        <p className="text-xs text-cocoa/85">{formatDate(t.created_at, tr.locale, true)}</p>
         <p className="mt-3 whitespace-pre-wrap text-cocoa">{t.message}</p>
       </section>
       {msgs.length > 0 && (
         <ul className="space-y-3">
           {msgs.map((m) => (
             <li key={m.id} className={`rounded-card p-5 text-sm ${m.author_role === "admin" ? "bg-nude/60" : "bg-ivory shadow-soft"}`}>
-              <p className="text-xs uppercase tracking-[0.15em] text-rose-deep">{m.author_role === "admin" ? "Studio" : "Cliente"} · {new Date(m.created_at).toLocaleString("pt-BR")}</p>
+              <p className="text-xs uppercase tracking-[0.15em] text-rose-deep">{m.author_role === "admin" ? tr("admin.sac.studio") : tr("admin.sac.client")} · {formatDate(m.created_at, tr.locale, true)}</p>
               <p className="mt-2 whitespace-pre-wrap text-cocoa">{m.body}</p>
             </li>
           ))}

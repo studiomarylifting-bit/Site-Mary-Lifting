@@ -3,6 +3,8 @@ import { getCatalog } from "@/features/catalog/queries";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { ticketTypeLabels } from "@/lib/validation/schemas";
 import { TicketStatusBadge } from "@/features/sac/TicketStatusBadge";
+import { getT } from "@/i18n/server";
+import { formatDate } from "@/i18n/format";
 
 async function count(table: string, filter?: [string, string]) {
   const supabase = await createSupabaseServerClient();
@@ -15,7 +17,7 @@ async function count(table: string, filter?: [string, string]) {
 
 export default async function AdminDashboard() {
   const supabase = await createSupabaseServerClient();
-  const catalog = await getCatalog();
+  const [catalog, t] = await Promise.all([getCatalog(), getT()]);
   const [clients, intakes, pendingFeedback, openTickets, privacy] = await Promise.all([
     count("profiles"), count("intake_forms"), count("feedback", ["status", "pending"]),
     count("sac_tickets", ["status", "open"]), count("privacy_requests", ["status", "received"]),
@@ -24,21 +26,19 @@ export default async function AdminDashboard() {
     .select("id, protocol, subject, type, status, created_at").order("created_at", { ascending: false }).limit(6)) ?? { data: [] };
 
   const stats = [
-    { label: "Clientes cadastradas", value: clients, href: "/admin/clientes" },
-    { label: "Fichas recebidas", value: intakes, href: "/admin/clientes" },
-    { label: "Feedbacks pendentes", value: pendingFeedback, href: "/admin/feedback" },
-    { label: "SAC em aberto", value: openTickets, href: "/admin/sac" },
-    { label: "Pedidos de privacidade", value: privacy, href: "/admin" },
+    { label: t("admin.dash.clients"), value: clients, href: "/admin/clientes" },
+    { label: t("admin.dash.intakes"), value: intakes, href: "/admin/clientes" },
+    { label: t("admin.dash.pendingFeedback"), value: pendingFeedback, href: "/admin/feedback" },
+    { label: t("admin.dash.openTickets"), value: openTickets, href: "/admin/sac" },
+    { label: t("admin.dash.privacy"), value: privacy, href: "/admin" },
   ];
 
   return (
     <div className="space-y-12">
-      <h1 className="text-5xl">Painel</h1>
+      <h1 className="text-4xl sm:text-5xl">{t("admin.dash.title")}</h1>
       <p className="-mt-6 text-sm text-cocoa">
-        Catálogo: {catalog.services.length} serviços em {catalog.categories.length} categorias ·{" "}
-        {catalog.source === "database"
-          ? "lido do Supabase."
-          : "usando o catálogo estático (Supabase sem migration/seed aplicados, ou indisponível). Veja docs/CATALOGO-SUPABASE.md."}
+        {t("admin.dash.catalog", { services: catalog.services.length, categories: catalog.categories.length })}
+        {catalog.source === "database" ? t("admin.dash.fromDb") : t("admin.dash.fromStatic")}
       </p>
       <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {stats.map((s) => (
@@ -51,14 +51,14 @@ export default async function AdminDashboard() {
         ))}
       </ul>
       <section aria-labelledby="recentes">
-        <h2 id="recentes" className="text-3xl">Solicitações recentes</h2>
-        {!recent?.length ? <p className="mt-4 text-cocoa">Nenhuma solicitação ainda.</p> : (
+        <h2 id="recentes" className="text-3xl">{t("admin.dash.recent")}</h2>
+        {!recent?.length ? <p className="mt-4 text-cocoa">{t("admin.dash.noRecent")}</p> : (
           <ul className="mt-5 divide-y divide-line border-y border-line">
-            {recent.map((t) => (
-              <li key={t.id}>
-                <Link href={`/admin/sac/${t.id}`} className="flex flex-wrap items-center justify-between gap-3 py-4 hover:bg-ivory">
-                  <span><span className="text-xs uppercase tracking-[0.15em] text-rose-deep">{t.protocol} · {ticketTypeLabels[t.type as keyof typeof ticketTypeLabels]}</span><span className="block text-espresso">{t.subject}</span></span>
-                  <TicketStatusBadge status={t.status} />
+            {recent.map((tk) => (
+              <li key={tk.id}>
+                <Link href={`/admin/sac/${tk.id}`} className="flex flex-wrap items-center justify-between gap-3 py-4 hover:bg-ivory">
+                  <span><span className="text-xs uppercase tracking-[0.15em] text-rose-deep">{tk.protocol} · {ticketTypeLabels[tk.type as keyof typeof ticketTypeLabels] ? t(`sac.types.${tk.type}`) : tk.type}</span><span className="block text-espresso">{tk.subject}</span></span>
+                  <TicketStatusBadge status={tk.status} />
                 </Link>
               </li>
             ))}

@@ -2,6 +2,8 @@ import "server-only";
 import { NextResponse } from "next/server";
 import type { ZodSchema } from "zod";
 import { getSiteUrl } from "@/lib/env";
+import { getLocale } from "@/i18n/server";
+import { translateMessage } from "@/i18n/server-messages";
 
 export function jsonError(status: number, code: string, message: string, fields?: Record<string, string>) {
   return NextResponse.json({ ok: false, code, message, fields }, { status });
@@ -41,14 +43,15 @@ export async function parseJson<T>(
   }
   const parsed = schema.safeParse(raw);
   if (!parsed.success) {
+    const locale = await getLocale();
     const fields: Record<string, string> = {};
     for (const issue of parsed.error.issues) {
       const key = issue.path.join(".") || "_";
-      fields[key] ??= issue.message;
+      fields[key] ??= translateMessage(issue.message, locale);
     }
     return {
       ok: false,
-      response: jsonError(422, "validation_error", "Revise os campos destacados.", fields),
+      response: jsonError(422, "validation_error", translateMessage("Revise os campos destacados.", locale), fields),
     };
   }
   return { ok: true, data: parsed.data };
