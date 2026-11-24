@@ -36,3 +36,8 @@ export async function requireAdmin(): Promise<SessionUser | null> {
   if (!user) return null;
   return (await isAdminUser(user.id)) ? user : null;
 }
+
+/** Destino padrão após entrar: admin cai no painel, cliente na própria conta. */
+export async function defaultLandingPath(userId: string): Promise<"/admin" | "/conta"> {
+  return (await isAdminUser(userId)) ? "/admin" : "/conta";
+}

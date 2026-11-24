@@ -16,6 +16,7 @@ import { CONSENT_TEXT_VERSION, signupConsent } from "@/features/privacy/consents
 import { getLocale } from "@/i18n/server";
 import type { Locale } from "@/i18n/config";
 import { translateMessage } from "@/i18n/server-messages";
+import { defaultLandingPath } from "@/server/policies/authz";
 import { safeNextPath } from "./safe-next";
 
 /** Mensagem no idioma da requisição (cookie de idioma). */
@@ -52,11 +53,13 @@ export async function signInAction(_prev: FormState, formData: FormData): Promis
   const supabase = await createSupabaseServerClient();
   if (!supabase) return { message: await tr("Autenticação indisponível no momento.") };
 
-  const { error } = await supabase.auth.signInWithPassword(parsed.data);
+  const { data: signedIn, error } = await supabase.auth.signInWithPassword(parsed.data);
   // Mensagem genérica: não revela se o e-mail existe.
   if (error) return { message: await tr("E-mail ou senha incorretos, ou e-mail ainda não confirmado.") };
 
-  redirect(safeNextPath(String(formData.get("next") ?? "")) ?? "/conta");
+  // Sem destino pedido: admin -> /admin, cliente -> /conta (papel lido do banco, nunca do cliente).
+  const explicit = safeNextPath(String(formData.get("next") ?? ""));
+  redirect(explicit ?? (signedIn.user ? await defaultLandingPath(signedIn.user.id) : "/conta"));
 }
 
 export async function signUpAction(_prev: FormState, formData: FormData): Promise<FormState> {
