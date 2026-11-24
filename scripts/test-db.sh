@@ -22,7 +22,7 @@ for m in supabase/migrations/*.sql; do echo "migration: $m"; run -f "$m" >/dev/n
 echo "reaplicando as migrations do catálogo (idempotência)"; for m in supabase/migrations/20261122*.sql; do run -f "$m" >/dev/null 2>&1; done
 run -f supabase/seed.sql >/dev/null; run -f supabase/seed.sql >/dev/null   # 2x: não pode duplicar
 
-out="$(psql "$TEST_DATABASE_URL" -q -f tests/db/catalog_rls.sql 2>&1 | sed -n 's/^psql:[^ ]* NOTICE:  //p')"
+out="$(psql "$TEST_DATABASE_URL" -q -f tests/db/catalog_rls.sql -f tests/db/site_images_rls.sql 2>&1 | sed -n 's/^psql:[^ ]* NOTICE:  //p')"
 echo "$out"
 pass=$(grep -c '^PASS' <<<"$out" || true); fail=$(grep -c '^FAIL' <<<"$out" || true)
 echo; echo "RLS/Storage: $pass aprovados, $fail falhas"

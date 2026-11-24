@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { Menu, X, UserRound } from "lucide-react";
+import { Menu, X, UserRound, LayoutDashboard } from "lucide-react";
 import { useT } from "@/i18n/client";
-import { BrandMark } from "./BrandMark";
+import { BrandMark, type BrandImages } from "./BrandMark";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -20,7 +20,10 @@ const nav = [
 
 const FOCUSABLE = 'a[href],button:not([disabled]),select:not([disabled]),[tabindex]:not([tabindex="-1"])';
 
-export function SiteHeader() {
+/** guest = sem sessão · client = cliente logada · admin = administradora. */
+export type Viewer = "guest" | "client" | "admin";
+
+export function SiteHeader({ viewer, brand }: { viewer: Viewer; brand: BrandImages }) {
   const t = useT();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -87,7 +90,7 @@ export function SiteHeader() {
       <div aria-hidden className="absolute inset-0 -z-10 bg-cream/90 backdrop-blur-md" />
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-5 md:h-20 md:px-10">
         <Link href="/" className="flex min-w-0 items-center gap-2.5 rounded-md leading-none sm:gap-3" aria-label={t("brand.homeAria")}>
-          <BrandMark />
+          <BrandMark brand={brand} />
           <span className="min-w-0">
             <span className="block truncate font-display text-2xl tracking-wide text-espresso md:text-3xl">{t("brand.name")}</span>
             <span className="block truncate pt-1 text-[0.58rem] font-medium uppercase tracking-[0.28em] text-rose-deep sm:text-[0.62rem] sm:tracking-[0.32em]">
@@ -114,13 +117,24 @@ export function SiteHeader() {
         <div className="hidden items-center gap-2 xl:flex">
           <LanguageSwitcher />
           <ThemeToggle />
-          {/* /conta redireciona para /entrar quando não há sessão (middleware). */}
-          <Link
-            href="/conta"
-            className="inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full bg-espresso px-5 text-sm text-ivory transition-colors hover:bg-cocoa"
-          >
-            <UserRound size={16} aria-hidden /> {t("nav.account")}
-          </Link>
+          {viewer === "guest" ? (
+            <>
+              <Link href="/entrar" className="inline-flex min-h-11 items-center whitespace-nowrap rounded-full px-4 text-sm text-espresso transition-colors hover:bg-nude/60">
+                {t("nav.signIn")}
+              </Link>
+              <Link href="/cadastro" className="inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full bg-espresso px-5 text-sm text-ivory transition-colors hover:bg-cocoa">
+                <UserRound size={16} aria-hidden /> {t("nav.signUp")}
+              </Link>
+            </>
+          ) : (
+            <Link
+              href={viewer === "admin" ? "/admin" : "/conta"}
+              className="inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full bg-espresso px-5 text-sm text-ivory transition-colors hover:bg-cocoa"
+            >
+              {viewer === "admin" ? <LayoutDashboard size={16} aria-hidden /> : <UserRound size={16} aria-hidden />}
+              {viewer === "admin" ? t("nav.admin") : t("nav.account")}
+            </Link>
+          )}
         </div>
 
         <div className="flex shrink-0 items-center gap-1 xl:hidden">
@@ -158,15 +172,20 @@ export function SiteHeader() {
             ))}
           </nav>
           <div className="mx-auto mt-8 grid max-w-xl gap-3">
-            <Link href="/conta" className="inline-flex min-h-12 items-center justify-center rounded-full bg-espresso px-5 py-3 text-ivory">
-              {t("nav.account")}
-            </Link>
-            <Link href="/entrar" className="inline-flex min-h-12 items-center justify-center rounded-full border border-cocoa/35 px-5 py-3 text-espresso">
-              {t("nav.signIn")}
-            </Link>
-            <Link href="/cadastro" className="inline-flex min-h-12 items-center justify-center rounded-full px-5 py-3 text-cocoa underline underline-offset-4">
-              {t("nav.signUp")}
-            </Link>
+            {viewer === "guest" ? (
+              <>
+                <Link href="/entrar" className="inline-flex min-h-12 items-center justify-center rounded-full bg-espresso px-5 py-3 text-ivory">
+                  {t("nav.signIn")}
+                </Link>
+                <Link href="/cadastro" className="inline-flex min-h-12 items-center justify-center rounded-full border border-cocoa/35 px-5 py-3 text-espresso">
+                  {t("nav.signUp")}
+                </Link>
+              </>
+            ) : (
+              <Link href={viewer === "admin" ? "/admin" : "/conta"} className="inline-flex min-h-12 items-center justify-center rounded-full bg-espresso px-5 py-3 text-ivory">
+                {viewer === "admin" ? t("nav.admin") : t("nav.account")}
+              </Link>
+            )}
             <LanguageSwitcher up className="mt-4" />
           </div>
         </div>

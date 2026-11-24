@@ -3,17 +3,17 @@
  * O banco guarda só o CAMINHO dentro do bucket (image_path), nunca a URL:
  * assim a URL base pode mudar (outro projeto, domínio próprio) sem migrar dados.
  *
- * Convenção de pastas: servicos/ · categorias/ · studio/ · home/
+ * Convenção de pastas: servicos/ · categorias/ · studio/ · home/ · brand/
  * Este módulo é puro (sem env, sem rede) para ser testável e usável em qualquer lado.
  */
 export const CATALOG_BUCKET = "site-media";
-export const IMAGE_FOLDERS = ["servicos", "categorias", "studio", "home"] as const;
+export const IMAGE_FOLDERS = ["servicos", "categorias", "studio", "home", "brand"] as const;
 export const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 export const ALLOWED_IMAGE_MIME = ["image/jpeg", "image/png", "image/webp", "image/avif"] as const;
 
 // Espelha o CHECK do banco (services_image_path_chk / service_categories_image_path_chk).
 // Aceita espaços e maiúsculas (ex.: "Brow lamination.jpg"); a URL é montada com encodeURIComponent.
-const IMAGE_PATH = /^(servicos|categorias|studio|home)\/[a-z0-9][a-z0-9 ._/-]*\.(jpe?g|png|webp|avif)$/i;
+const IMAGE_PATH = /^(servicos|categorias|studio|home|brand)\/[a-z0-9][a-z0-9 ._/-]*\.(jpe?g|png|webp|avif)$/i;
 
 export function isValidImagePath(path: unknown): path is string {
   return typeof path === "string" && path.length <= 200 && IMAGE_PATH.test(path) && !path.includes("..");
