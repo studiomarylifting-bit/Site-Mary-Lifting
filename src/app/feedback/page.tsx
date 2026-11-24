@@ -7,12 +7,12 @@ import { Container, PageHero } from "@/components/shared/PageHero";
 import { Stars } from "@/components/shared/Stars";
 import { Alert } from "@/components/ui/Alert";
 import { LinkButton } from "@/components/ui/Button";
+import { getT } from "@/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Feedback das clientes",
-  description: "Feedbacks de clientes do Studio, publicados com autorização e após moderação.",
-  alternates: { canonical: "/feedback" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return { title: t("feedback.meta.title"), description: t("feedback.meta.description"), alternates: { canonical: "/feedback" } };
+}
 
 export const revalidate = 300;
 
@@ -31,22 +31,22 @@ async function loadFeedback(): Promise<{ items: PublicFeedback[]; unavailable: b
 }
 
 export default async function FeedbackPage() {
-  const catalog = await getCatalog();
+  const [catalog, t] = await Promise.all([getCatalog(), getT()]);
   const { items, unavailable } = await loadFeedback();
 
   return (
     <>
-      <PageHero eyebrow="Clientes" title="Feedback das clientes" lead="Relatos enviados ao Studio e publicados com autorização. Este módulo é independente das avaliações do Google.">
-        <LinkButton href="/feedback/enviar" arrow>Enviar meu feedback</LinkButton>
+      <PageHero eyebrow={t("feedback.eyebrow")} title={t("feedback.title")} lead={t("feedback.lead")}>
+        <LinkButton href="/feedback/enviar" arrow>{t("feedback.send")}</LinkButton>
       </PageHero>
       <Container className="py-16 md:py-24">
         {unavailable ? (
-          <Alert tone="info" title="Feedbacks indisponíveis no momento">O módulo depende da configuração do banco de dados. Tente novamente mais tarde.</Alert>
+          <Alert tone="info" title={t("feedback.unavailableTitle")}>{t("feedback.unavailableText")}</Alert>
         ) : items.length === 0 ? (
           <div className="flex flex-col items-center gap-4 py-16 text-center">
             <MessageSquareQuote size={36} strokeWidth={1.1} className="text-rose" aria-hidden />
-            <p className="font-display text-3xl text-espresso">Ainda não há feedbacks publicados</p>
-            <p className="max-w-md text-cocoa">Seja a primeira a compartilhar sua experiência.</p>
+            <p className="font-display text-3xl text-espresso">{t("feedback.emptyTitle")}</p>
+            <p className="max-w-md text-cocoa">{t("feedback.emptyText")}</p>
           </div>
         ) : (
           <ul className="columns-1 gap-6 md:columns-2 lg:columns-3 [&>li]:mb-6 [&>li]:break-inside-avoid">

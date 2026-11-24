@@ -61,6 +61,9 @@
     line-height: 1.04;
     color: var(--color-espresso);
     text-wrap: balance;
+    /* Palavras longas (it/es) não estouram a tela em celulares estreitos. */
+    overflow-wrap: break-word;
+    hyphens: auto;
   }
 
   p { text-wrap: pretty; }
@@ -74,6 +77,76 @@
     outline: 2px solid var(--color-rose-deep);
     outline-offset: 3px;
   }
+}
+
+/* ---------- Tema escuro ----------
+   Os mesmos nomes de token, com valores invertidos: bg-cream (fundo), bg-ivory (superfície),
+   text-espresso (texto principal), text-cocoa (texto secundário). Assim TODAS as telas
+   (site, conta, admin) respeitam o tema sem repetir classes dark: em cada componente.
+   Escolha manual: <html data-theme="dark|light">; sem escolha, segue o sistema. */
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --color-cream: #16100d;
+    --color-ivory: #201813;
+    --color-nude: #2d221b;
+    --color-blush: #281d18;
+    --color-sand: #7d6857;
+    --color-rose: #c99c91;
+    --color-rose-deep: #e3b4a8;
+    --color-cocoa: #d9c8b8;
+    --color-espresso: #f5ece2;
+    --color-ink: #f2e9df;
+    --color-line: #3a2d25;
+    --color-taupe: #b9a595;
+    --color-stroke: #8d7a6a;
+    --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.35), 0 14px 32px -18px rgba(0, 0, 0, 0.7);
+    --shadow-lift: 0 2px 4px rgba(0, 0, 0, 0.35), 0 28px 48px -26px rgba(0, 0, 0, 0.8);
+}
+:root[data-theme="dark"] .on-dark { --color-espresso: #3b2b24; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --color-cream: #16100d;
+    --color-ivory: #201813;
+    --color-nude: #2d221b;
+    --color-blush: #281d18;
+    --color-sand: #7d6857;
+    --color-rose: #c99c91;
+    --color-rose-deep: #e3b4a8;
+    --color-cocoa: #d9c8b8;
+    --color-espresso: #f5ece2;
+    --color-ink: #f2e9df;
+    --color-line: #3a2d25;
+    --color-taupe: #b9a595;
+    --color-stroke: #8d7a6a;
+    --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.35), 0 14px 32px -18px rgba(0, 0, 0, 0.7);
+    --shadow-lift: 0 2px 4px rgba(0, 0, 0, 0.35), 0 28px 48px -26px rgba(0, 0, 0, 0.8);
+  }
+  :root:not([data-theme="light"]) .on-dark { --color-espresso: #3b2b24; }
+}
+:root[data-theme="dark"] .select-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23b9a595' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); }
+:root[data-theme="dark"] .check-control:checked { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23201813' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E"); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .select-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23b9a595' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); }
+  :root:not([data-theme="light"]) .check-control:checked { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23201813' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E"); }
+}
+
+/* Faixas escuras (rodapé, painéis, cartões escuros) mantêm a paleta marrom nos dois temas:
+   os tokens são fixados aqui, então o texto claro sobre elas continua legível. */
+.on-dark {
+  --color-cream: #faf6f0;
+  --color-ivory: #fffdf9;
+  --color-nude: #eadfd0;
+  --color-blush: #f4e7e1;
+  --color-sand: #d9c6ae;
+  --color-rose: #c99c91;
+  --color-rose-deep: #8a5a50;
+  --color-cocoa: #5b4136;
+  --color-espresso: #2a1d18;
+  --color-ink: #1c1411;
+  --color-line: #e3d6c5;
+  --color-taupe: #7a6657;
+  --color-stroke: #a39080;
 }
 
 /* Fundos escuros: contorno de foco claro (o rosé-escuro dá só ~2:1 sobre o marrom). */

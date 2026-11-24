@@ -7,14 +7,10 @@ import { Alert } from "@/components/ui/Alert";
 import { buttonClass } from "@/components/ui/Button";
 import { CheckField, SelectField, TextAreaField, TextField } from "@/components/ui/Field";
 import { sendJson } from "@/lib/client/post-json";
-import { sacConsent } from "@/features/privacy/consents";
+import { useI18n } from "@/i18n/client";
+import { translateMessage } from "@/i18n/server-messages";
 
-const types = [
-  ["duvida", "Dúvida"], ["agendamento", "Agendamento"], ["procedimento", "Procedimento"],
-  ["pos_atendimento", "Pós-atendimento"], ["financeiro", "Financeiro"],
-  ["privacidade", "Privacidade e dados"], ["reclamacao", "Reclamação"],
-  ["sugestao", "Sugestão"], ["outro", "Outro"],
-] as const;
+const types = ["duvida", "agendamento", "procedimento", "pos_atendimento", "financeiro", "privacidade", "reclamacao", "sugestao", "outro"] as const;
 
 interface Values {
   name: string; email: string; phone: string; subject: string; type: string;
@@ -28,6 +24,7 @@ export function SacForm({
   defaults?: Partial<Pick<Values, "name" | "email" | "phone" | "subject" | "type">>;
   signedIn: boolean;
 }) {
+  const { t, locale } = useI18n();
   const renderedAt = useRef(Date.now());
   const [protocol, setProtocol] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -45,16 +42,16 @@ export function SacForm({
       return;
     }
     if (result.fields) {
-      for (const [k, msg] of Object.entries(result.fields)) setFieldError(k as keyof Values, { message: msg });
+      for (const [k, msg] of Object.entries(result.fields)) setFieldError(k as keyof Values, { message: translateMessage(msg, locale) });
     }
-    setError(result.message ?? "Não foi possível enviar.");
+    setError(translateMessage(result.message ?? "Não foi possível enviar.", locale));
   }
 
   if (protocol) {
     return (
-      <Alert tone="success" title="Solicitação recebida">
-        Guarde o número do seu protocolo: <strong className="font-medium">{protocol}</strong>.
-        {signedIn ? " Você pode acompanhar o andamento em Minha conta > SAC." : " Responderemos pelos dados de contato informados."}
+      <Alert tone="success" title={t("sac.form.doneTitle")}>
+        {t("sac.form.doneKeep")}<strong className="font-medium">{protocol}</strong>.
+        {signedIn ? t("sac.form.doneSigned") : t("sac.form.doneAnon")}
       </Alert>
     );
   }
@@ -63,21 +60,21 @@ export function SacForm({
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6" aria-busy={isSubmitting}>
       {error && <Alert tone="error">{error}</Alert>}
       <div className="grid gap-6 md:grid-cols-2">
-        <TextField id="name" label="Nome" autoComplete="name" required error={errors.name?.message} {...register("name", { required: "Informe seu nome" })} />
-        <TextField id="email" type="email" label="E-mail" autoComplete="email" required error={errors.email?.message} {...register("email", { required: "Informe seu e-mail" })} />
-        <TextField id="phone" type="tel" label="Celular com DDD" autoComplete="tel" placeholder="(11) 99999-9999" required error={errors.phone?.message} {...register("phone", { required: "Informe seu celular" })} />
-        <SelectField id="type" label="Tipo de solicitação" required placeholder="Selecione" options={types.map(([value, label]) => ({ value, label }))} error={errors.type?.message} {...register("type", { required: "Selecione o tipo" })} />
+        <TextField id="name" label={t("sac.form.name")} autoComplete="name" required error={errors.name?.message} {...register("name", { required: t("sac.form.reqName") })} />
+        <TextField id="email" type="email" label={t("sac.form.email")} autoComplete="email" required error={errors.email?.message} {...register("email", { required: t("sac.form.reqEmail") })} />
+        <TextField id="phone" type="tel" label={t("sac.form.phone")} autoComplete="tel" placeholder="(11) 99999-9999" required error={errors.phone?.message} {...register("phone", { required: t("sac.form.reqPhone") })} />
+        <SelectField id="type" label={t("sac.form.type")} required placeholder={t("app.select")} options={types.map((value) => ({ value, label: t(`sac.types.${value}`) }))} error={errors.type?.message} {...register("type", { required: t("sac.form.reqType") })} />
       </div>
-      <TextField id="subject" label="Assunto" required error={errors.subject?.message} {...register("subject", { required: "Informe o assunto" })} />
-      <TextAreaField id="message" label="Mensagem" rows={6} required hint="Não envie dados de saúde por aqui. Eles são tratados na ficha de atendimento." error={errors.message?.message} {...register("message", { required: "Escreva sua mensagem" })} />
-      <CheckField id="contactConsent" label={sacConsent.text} error={errors.contactConsent?.message} {...register("contactConsent", { required: "O consentimento é necessário para responder" })} />
+      <TextField id="subject" label={t("sac.form.subject")} required error={errors.subject?.message} {...register("subject", { required: t("sac.form.reqSubject") })} />
+      <TextAreaField id="message" label={t("sac.form.message")} rows={6} required hint={t("sac.form.messageHint")} error={errors.message?.message} {...register("message", { required: t("sac.form.reqMessage") })} />
+      <CheckField id="contactConsent" label={t("consent.sac_contact")} error={errors.contactConsent?.message} {...register("contactConsent", { required: t("sac.form.reqConsent") })} />
       <div className="hp-field" aria-hidden="true">
-        <label htmlFor="website">Não preencha este campo</label>
+        <label htmlFor="website">{t("sac.form.honeypot")}</label>
         <input id="website" tabIndex={-1} autoComplete="off" {...register("website")} />
       </div>
       <button type="submit" disabled={isSubmitting} className={buttonClass("primary")}>
         {isSubmitting && <Loader2 size={16} className="animate-spin" aria-hidden />}
-        {isSubmitting ? "Enviando..." : "Enviar solicitação"}
+        {isSubmitting ? t("app.sending") : t("sac.form.submit")}
       </button>
     </form>
   );

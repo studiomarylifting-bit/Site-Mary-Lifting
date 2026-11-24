@@ -4,10 +4,16 @@ import { getSessionUser } from "@/server/policies/authz";
 import { intakeConsents } from "@/features/privacy/consents";
 import { ConsentToggles } from "@/features/privacy/ConsentToggles";
 import { Alert } from "@/components/ui/Alert";
+import { getT } from "@/i18n/server";
+import { formatDate } from "@/i18n/format";
 
-export const metadata: Metadata = { title: "Autorizações" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return { title: t("account.consents.title") };
+}
 
 export default async function ConsentsPage() {
+  const t = await getT();
   const user = await getSessionUser();
   const supabase = await createSupabaseServerClient();
   if (!user || !supabase) return null;
@@ -24,7 +30,7 @@ export default async function ConsentsPage() {
 
   const optional = intakeConsents.filter((c) => !c.required).map((c) => ({
     kind: c.kind as "whatsapp_followup" | "whatsapp_marketing" | "ranking_name" | "image_use" | "instagram_mention",
-    text: c.text,
+    text: t(`consent.${c.kind}`),
     granted: latest.get(c.kind)?.granted ?? false,
     at: latest.get(c.kind)?.at ?? null,
   }));
@@ -33,13 +39,13 @@ export default async function ConsentsPage() {
   return (
     <div className="space-y-8">
       <header>
-        <p className="text-[0.7rem] uppercase tracking-[0.3em] text-rose-deep">Minha conta</p>
-        <h1 className="mt-3 text-5xl">Autorizações</h1>
+        <p className="text-[0.7rem] uppercase tracking-[0.3em] text-rose-deep">{t("account.eyebrow")}</p>
+        <h1 className="mt-3 text-4xl sm:text-5xl">{t("account.consents.title")}</h1>
       </header>
-      <Alert tone="info" title="Uso dos dados de saúde">
+      <Alert tone="info" title={t("account.consents.healthTitle")}>
         {health?.granted
-          ? `Autorizado em ${new Date(health.at).toLocaleDateString("pt-BR")}. Para revogar esta autorização, solicite pela página de privacidade (isso pode implicar a exclusão da ficha).`
-          : "Você ainda não autorizou o uso dos dados de saúde. Isso acontece ao enviar a ficha de atendimento."}
+          ? t("account.consents.healthGranted", { date: formatDate(health.at, t.locale) })
+          : t("account.consents.healthNone")}
       </Alert>
       <ConsentToggles items={optional} />
     </div>

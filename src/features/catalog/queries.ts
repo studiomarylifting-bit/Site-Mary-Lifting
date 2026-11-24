@@ -1,3 +1,4 @@
+import type { Catalog } from "./catalog-core";
 import {
   findCategory,
   findService,
@@ -7,10 +8,20 @@ import {
   servicesOfCategory,
   sortedCategories,
 } from "./catalog-core";
-import { getCatalog } from "./repository";
+import { getCatalog as getBaseCatalog } from "./repository";
+import { localizeCatalog } from "./translations";
+import { getLocale } from "@/i18n/server";
 import type { CategorySlug, Service, ServiceCategory } from "./types";
 
-export { getCatalog };
+/** Catálogo já no idioma da requisição (textos editados no banco não são sobrescritos). */
+export async function getCatalog(): Promise<Catalog> {
+  return localizeCatalog(await getBaseCatalog(), await getLocale());
+}
+
+/** Slugs para generateStaticParams: roda no build, sem requisição (nada de cookies). */
+export async function getStaticParamsCatalog(): Promise<Catalog> {
+  return getBaseCatalog();
+}
 
 export async function getCategories(): Promise<ServiceCategory[]> {
   return sortedCategories(await getCatalog());

@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
-import { getCategories, getCategory, getServicesByCategory } from "@/features/catalog/queries";
+import { getCategory, getServicesByCategory, getStaticParamsCatalog } from "@/features/catalog/queries";
+import { getT } from "@/i18n/server";
 import { Container, PageHero } from "@/components/shared/PageHero";
 import { ServiceCard } from "@/components/shared/ServiceCard";
 
@@ -11,7 +12,7 @@ type Params = { categoria: string };
 export const revalidate = 300;
 
 export async function generateStaticParams() {
-  return (await getCategories()).map((c) => ({ categoria: c.slug }));
+  return (await getStaticParamsCatalog()).categories.map((c) => ({ categoria: c.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
@@ -25,18 +26,18 @@ export default async function CategoryPage({ params }: { params: Promise<Params>
   const { categoria } = await params;
   const category = await getCategory(categoria);
   if (!category) notFound();
-  const items = await getServicesByCategory(category.slug);
+  const [items, t] = await Promise.all([getServicesByCategory(category.slug), getT()]);
 
   return (
     <>
-      <PageHero eyebrow={`${category.index} — Procedimentos`} title={category.title} lead={category.tagline}>
+      <PageHero eyebrow={t("catalog.categoryEyebrow", { index: category.index })} title={category.title} lead={category.tagline}>
         <Link href="/catalogo" className="inline-flex items-center gap-1 text-sm text-cocoa underline-offset-4 hover:underline">
-          <ChevronLeft size={16} aria-hidden /> Voltar ao catálogo
+          <ChevronLeft size={16} aria-hidden /> {t("catalog.back")}
         </Link>
       </PageHero>
       <Container className="py-16 md:py-24">
         {items.length === 0 ? (
-          <p className="text-cocoa">Em breve, novos procedimentos nesta categoria.</p>
+          <p className="text-cocoa">{t("catalog.soon")}</p>
         ) : (
           <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {items.map((s) => (

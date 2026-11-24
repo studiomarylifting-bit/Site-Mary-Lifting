@@ -13,7 +13,15 @@ import {
   signUpSchema,
 } from "@/lib/validation/schemas";
 import { CONSENT_TEXT_VERSION, signupConsent } from "@/features/privacy/consents";
+import { getLocale } from "@/i18n/server";
+import type { Locale } from "@/i18n/config";
+import { translateMessage } from "@/i18n/server-messages";
 import { safeNextPath } from "./safe-next";
+
+/** Mensagem no idioma da requisição (cookie de idioma). */
+async function tr(message: string): Promise<string> {
+  return translateMessage(message, await getLocale());
+}
 
 export interface FormState {
   ok?: boolean;
@@ -21,9 +29,9 @@ export interface FormState {
   fields?: Record<string, string>;
 }
 
-function fieldErrors(issues: { path: (string | number)[]; message: string }[]) {
+function fieldErrors(issues: { path: (string | number)[]; message: string }[], locale: Locale = "pt") {
   const fields: Record<string, string> = {};
-  for (const i of issues) fields[i.path.join(".") || "_"] ??= i.message;
+  for (const i of issues) fields[i.path.join(".") || "_"] ??= translateMessage(i.message, locale);
   return fields;
 }
 
@@ -38,15 +46,15 @@ export async function signInAction(_prev: FormState, formData: FormData): Promis
     email: formData.get("email"),
     password: formData.get("password"),
   });
-  if (!parsed.success) return { fields: fieldErrors(parsed.error.issues) };
-  if (!(await authAllowed())) return { message: "Muitas tentativas. Aguarde alguns minutos." };
+  if (!parsed.success) return { fields: fieldErrors(parsed.error.issues, await getLocale()) };
+  if (!(await authAllowed())) return { message: await tr("Muitas tentativas. Aguarde alguns minutos.") };
 
   const supabase = await createSupabaseServerClient();
-  if (!supabase) return { message: "Autenticação indisponível no momento." };
+  if (!supabase) return { message: await tr("Autenticação indisponível no momento.") };
 
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
   // Mensagem genérica: não revela se o e-mail existe.
-  if (error) return { message: "E-mail ou senha incorretos, ou e-mail ainda não confirmado." };
+  if (error) return { message: await tr("E-mail ou senha incorretos, ou e-mail ainda não confirmado.") };
 
   redirect(safeNextPath(String(formData.get("next") ?? "")) ?? "/conta");
 }
@@ -60,11 +68,11 @@ export async function signUpAction(_prev: FormState, formData: FormData): Promis
     confirmPassword: formData.get("confirmPassword"),
     acceptTerms: formData.get("acceptTerms") === "on",
   });
-  if (!parsed.success) return { fields: fieldErrors(parsed.error.issues) };
-  if (!(await authAllowed())) return { message: "Muitas tentativas. Aguarde alguns minutos." };
+  if (!parsed.success) return { fields: fieldErrors(parsed.error.issues, await getLocale()) };
+  if (!(await authAllowed())) return { message: await tr("Muitas tentativas. Aguarde alguns minutos.") };
 
   const supabase = await createSupabaseServerClient();
-  if (!supabase) return { message: "Cadastro indisponível no momento." };
+  if (!supabase) return { message: await tr("Cadastro indisponível no momento.") };
 
   const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
@@ -75,7 +83,7 @@ export async function signUpAction(_prev: FormState, formData: FormData): Promis
       emailRedirectTo: `${getSiteUrl()}/auth/callback?next=/conta`,
     },
   });
-  if (error) return { message: "Não foi possível concluir o cadastro. Verifique os dados e tente novamente." };
+  if (error) return { message: await tr("Não foi possível concluir o cadastro. Verifique os dados e tente novamente.") };
 
   // Registra o aceite de termos/política (versão + texto) com timestamp.
   const userId = data.user?.id;
@@ -93,23 +101,23 @@ export async function signUpAction(_prev: FormState, formData: FormData): Promis
 
   return {
     ok: true,
-    message:
-      "Cadastro realizado. Se a confirmação de e-mail estiver ativa, enviamos um link para confirmar sua conta.",
+    message: await tr(
+      "Cadastro realizado. Se a confirmação de e-mail estiver ativa, enviamos um link para confirmar sua conta."),
   };
 }
 
 export async function forgotPasswordAction(_prev: FormState, formData: FormData): Promise<FormState> {
   const parsed = forgotPasswordSchema.safeParse({ email: formData.get("email") });
-  if (!parsed.success) return { fields: fieldErrors(parsed.error.issues) };
-  if (!(await authAllowed())) return { message: "Muitas tentativas. Aguarde alguns minutos." };
+  if (!parsed.success) return { fields: fieldErrors(parsed.error.issues, await getLocale()) };
+  if (!(await authAllowed())) return { message: await tr("Muitas tentativas. Aguarde alguns minutos.") };
 
   const supabase = await createSupabaseServerClient();
-  if (!supabase) return { message: "Serviço indisponível no momento." };
+  if (!supabase) return { message: await tr("Serviço indisponível no momento.") };
   await supabase.auth.resetPasswordForEmail(parsed.data.email, {
     redirectTo: `${getSiteUrl()}/auth/callback?next=/redefinir-senha`,
   });
   // Resposta idêntica exista ou não a conta (evita enumeração de usuários).
-  return { ok: true, message: "Se houver uma conta com esse e-mail, enviaremos as instruções." };
+  return { ok: true, message: await tr("Se houver uma conta com esse e-mail, enviaremos as instruções.") };
 }
 
 export async function resetPasswordAction(_prev: FormState, formData: FormData): Promise<FormState> {
@@ -117,14 +125,14 @@ export async function resetPasswordAction(_prev: FormState, formData: FormData):
     password: formData.get("password"),
     confirmPassword: formData.get("confirmPassword"),
   });
-  if (!parsed.success) return { fields: fieldErrors(parsed.error.issues) };
+  if (!parsed.success) return { fields: fieldErrors(parsed.error.issues, await getLocale()) };
 
   const supabase = await createSupabaseServerClient();
-  if (!supabase) return { message: "Serviço indisponível no momento." };
+  if (!supabase) return { message: await tr("Serviço indisponível no momento.") };
   const { data: user } = await supabase.auth.getUser();
-  if (!user.user) return { message: "Link expirado. Solicite uma nova recuperação de senha." };
+  if (!user.user) return { message: await tr("Link expirado. Solicite uma nova recuperação de senha.") };
 
   const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
-  if (error) return { message: "Não foi possível atualizar a senha. Tente novamente." };
+  if (error) return { message: await tr("Não foi possível atualizar a senha. Tente novamente.") };
   redirect("/conta");
 }

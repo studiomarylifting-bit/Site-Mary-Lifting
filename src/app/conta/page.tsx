@@ -3,8 +3,11 @@ import { ArrowRight, FileHeart, LifeBuoy, MessageSquareQuote, ShieldCheck } from
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/server/policies/authz";
 import { Alert } from "@/components/ui/Alert";
+import { getT } from "@/i18n/server";
+import { formatDate } from "@/i18n/format";
 
 export default async function AccountHome() {
+  const t = await getT();
   const user = await getSessionUser();
   const supabase = await createSupabaseServerClient();
   if (!user || !supabase) return null;
@@ -17,25 +20,25 @@ export default async function AccountHome() {
   ]);
   const firstName = profile.data?.full_name?.split(" ")[0] ?? "";
   const intakeLabel = intake.data
-    ? `Enviada em ${new Date(intake.data.updated_at).toLocaleDateString("pt-BR")}`
-    : "Ainda não preenchida";
+    ? t("account.home.intakeSent", { date: formatDate(intake.data.updated_at, t.locale) })
+    : t("account.home.intakeNone");
 
   const cards = [
-    { href: "/conta/ficha", icon: FileHeart, title: "Ficha de atendimento", info: intakeLabel },
-    { href: "/conta/sac", icon: LifeBuoy, title: "Meus SAC", info: `${tickets.count ?? 0} solicitações` },
-    { href: "/conta/feedbacks", icon: MessageSquareQuote, title: "Meus feedbacks", info: `${feedback.count ?? 0} enviados` },
-    { href: "/conta/autorizacoes", icon: ShieldCheck, title: "Autorizações", info: "Gerencie seus consentimentos" },
+    { href: "/conta/ficha", icon: FileHeart, title: t("account.nav.intake"), info: intakeLabel },
+    { href: "/conta/sac", icon: LifeBuoy, title: t("account.nav.tickets"), info: t("account.home.tickets", { n: tickets.count ?? 0 }) },
+    { href: "/conta/feedbacks", icon: MessageSquareQuote, title: t("account.nav.feedbacks"), info: t("account.home.feedbacks", { n: feedback.count ?? 0 }) },
+    { href: "/conta/autorizacoes", icon: ShieldCheck, title: t("account.nav.consents"), info: t("account.home.consentsInfo") },
   ];
 
   return (
     <div className="space-y-10">
       <header>
-        <p className="text-[0.7rem] uppercase tracking-[0.3em] text-rose-deep">Minha conta</p>
-        <h1 className="mt-3 text-5xl md:text-6xl">Olá{firstName ? `, ${firstName}` : ""}.</h1>
+        <p className="text-[0.7rem] uppercase tracking-[0.3em] text-rose-deep">{t("account.eyebrow")}</p>
+        <h1 className="mt-3 text-4xl sm:text-5xl md:text-6xl">{firstName ? t("account.home.helloNamed", { name: firstName }) : t("account.home.hello")}</h1>
       </header>
       {!intake.data && (
-        <Alert tone="info" title="Preencha sua ficha de atendimento">
-          A ficha organiza seu atendimento. <Link className="underline" href="/conta/ficha">Preencher agora</Link>.
+        <Alert tone="info" title={t("account.home.alertTitle")}>
+          {t("account.home.alertText")}<Link className="underline" href="/conta/ficha">{t("account.home.fillNow")}</Link>.
         </Alert>
       )}
       <ul className="grid gap-4 sm:grid-cols-2">

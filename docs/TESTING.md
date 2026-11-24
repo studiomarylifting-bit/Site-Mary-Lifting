@@ -25,3 +25,7 @@
 `npm install`, `typecheck` completo, `lint`, **Vitest real**, **Playwright**, `next build`, `npm audit`, testes de RLS contra um banco, e qualquer chamada real a Supabase, Uazapi ou Google. Os testes de `schemas`, `env`, `rate-limit` e `uazapi-client` dependem de pacotes (Zod, Supabase) e **ainda não foram rodados**. Nada disso deve ser considerado aprovado até rodar `npm install && npm run typecheck && npm run lint && npm test && npm run build && npm run test:e2e`.
 
 Testes de RLS exigem um projeto Supabase de teste e são um próximo passo recomendado.
+
+
+## Idiomas, tema e responsividade
+`tests/unit/i18n.test.ts` (paridade das chaves nos 4 idiomas, interpolação, mensagens do servidor) e `tests/e2e/i18n-theme.spec.ts` (troca de idioma, tema claro/escuro, menu móvel, sem rolagem horizontal a 360px). **O e2e ainda não foi executado** (sem rede no ambiente de desenvolvimento): rode `npm run test:e2e` localmente. Detalhes em [I18N-TEMAS.md](I18N-TEMAS.md).

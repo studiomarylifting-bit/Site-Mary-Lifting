@@ -4,20 +4,25 @@ import { Container, PageHero } from "@/components/shared/PageHero";
 import { Alert } from "@/components/ui/Alert";
 import { legal, pending } from "@/features/privacy/legal-config";
 import { studio } from "@/lib/studio";
+import { getT } from "@/i18n/server";
+import { formatDate } from "@/i18n/format";
 
-export const metadata: Metadata = {
-  title: "Termos de uso",
-  alternates: { canonical: "/termos" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return { title: t("legal.terms.title"), alternates: { canonical: "/termos" } };
+}
 
 const H = ({ children }: { children: React.ReactNode }) => <h2 className="mt-12 text-3xl md:text-4xl">{children}</h2>;
 const P = ({ children }: { children: React.ReactNode }) => <p className="leading-relaxed text-cocoa">{children}</p>;
 
-export default function TermsPage() {
+export default async function TermsPage() {
+  const t = await getT();
   return (
     <>
-      <PageHero eyebrow="Legal" title="Termos de uso" lead={`Versão ${legal.version} · atualizados em ${new Date(legal.lastUpdated).toLocaleDateString("pt-BR")}.`} />
+      <PageHero eyebrow={t("legal.terms.eyebrow")} title={t("legal.terms.title")} lead={t("legal.terms.lead", { version: legal.version, date: formatDate(legal.lastUpdated, t.locale) })} />
       <Container className="max-w-3xl space-y-4 py-16 md:py-24">
+        {t.locale !== "pt" && <Alert tone="info" title={t("legal.noticeTitle")}>{t("legal.noticeText")}</Alert>}
+        <div lang="pt-BR" className="space-y-4">
         <Alert tone="info" title="Revisão jurídica pendente">Este texto é uma base técnica e deve ser revisado juridicamente antes de ser tratado como definitivo.</Alert>
 
         <H>1. O serviço</H>
@@ -40,6 +45,7 @@ export default function TermsPage() {
 
         <H>7. Alterações e contato</H>
         <P>Estes termos podem ser atualizados; a versão vigente fica nesta página. Contato: {pending(legal.privacyEmail, "E-mail de contato")}.</P>
+        </div>
       </Container>
     </>
   );

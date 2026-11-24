@@ -3,9 +3,11 @@ import { findServiceBySlug } from "@/features/catalog/catalog-core";
 import { getCatalog } from "@/features/catalog/queries";
 import { Stars } from "@/components/shared/Stars";
 import { FeedbackModeration } from "@/features/feedback/FeedbackModeration";
+import { getT } from "@/i18n/server";
+import { formatDate } from "@/i18n/format";
 
 export default async function AdminFeedback() {
-  const catalog = await getCatalog();
+  const [catalog, t] = await Promise.all([getCatalog(), getT()]);
   const supabase = await createSupabaseServerClient();
   if (!supabase) return null;
   const { data } = await supabase.from("feedback")
@@ -14,23 +16,23 @@ export default async function AdminFeedback() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-5xl">Feedback</h1>
-      <p className="max-w-2xl text-sm text-cocoa">Só aparecem no site os feedbacks <strong>aprovados</strong> e com <strong>autorização de publicação</strong>. Sem autorização, o feedback permanece privado mesmo se aprovado.</p>
-      {!data?.length ? <p className="text-cocoa">Nenhum feedback recebido.</p> : (
+      <h1 className="text-4xl sm:text-5xl">{t("admin.feedback.title")}</h1>
+      <p className="max-w-2xl text-sm text-cocoa">{t("admin.feedback.note")}</p>
+      {!data?.length ? <p className="text-cocoa">{t("admin.feedback.none")}</p> : (
         <ul className="space-y-4">
           {data.map((f) => (
             <li key={f.id} className="space-y-4 rounded-card bg-ivory shadow-soft p-6">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <Stars value={f.rating} />
                 <p className="text-xs uppercase tracking-[0.15em] text-rose-deep">
-                  {f.user_id ? "Cliente com conta" : "Sem conta"} · {f.publish_consent ? "Autoriza publicar" : "Não autoriza publicar"}
+                  {f.user_id ? t("admin.feedback.withAccount") : t("admin.feedback.noAccount")} · {f.publish_consent ? t("admin.feedback.allows") : t("admin.feedback.denies")}
                 </p>
               </div>
               <p className="whitespace-pre-wrap text-cocoa">{f.comment}</p>
               <p className="text-xs text-cocoa/85">
-                {f.anonymize ? "Exibição: Cliente (anônimo)" : `Exibição: ${f.display_name}`}
+                {f.anonymize ? t("admin.feedback.showAnon") : t("admin.feedback.showName", { name: f.display_name ?? "" })}
                 {f.procedure_slug && findServiceBySlug(catalog, f.procedure_slug) ? ` · ${findServiceBySlug(catalog, f.procedure_slug)?.name}` : ""}
-                {" · "}{new Date(f.created_at).toLocaleDateString("pt-BR")}
+                {" · "}{formatDate(f.created_at, t.locale)}
               </p>
               <FeedbackModeration id={f.id} status={f.status} anonymize={f.anonymize} />
             </li>

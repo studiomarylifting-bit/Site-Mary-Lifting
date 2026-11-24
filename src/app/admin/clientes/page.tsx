@@ -3,6 +3,8 @@ import { buttonClass } from "@/components/ui/Button";
 import { fieldControl } from "@/components/ui/Field";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { formatBrazilPhone, onlyDigits } from "@/lib/format";
+import { getT } from "@/i18n/server";
+import { formatDate } from "@/i18n/format";
 
 const PAGE_SIZE = 25;
 
@@ -14,7 +16,7 @@ export default async function AdminClients({
 }: {
   searchParams: Promise<{ q?: string; p?: string }>;
 }) {
-  const sp = await searchParams;
+  const [sp, t] = await Promise.all([searchParams, getT()]);
   const q = (sp.q ?? "").trim().slice(0, 60);
   const page = Math.max(1, Number.parseInt(sp.p ?? "1", 10) || 1);
   const supabase = await createSupabaseServerClient();
@@ -35,23 +37,23 @@ export default async function AdminClients({
 
   return (
     <div className="space-y-8">
-      <h1 className="text-5xl">Clientes</h1>
+      <h1 className="text-4xl sm:text-5xl">{t("admin.clients.title")}</h1>
       <form className="flex max-w-md gap-2" role="search">
-        <label htmlFor="q" className="sr-only">Buscar por nome ou celular</label>
-        <input id="q" name="q" defaultValue={q} placeholder="Buscar por nome ou celular" className={fieldControl} />
-        <button className={buttonClass("primary", "px-6")}>Buscar</button>
+        <label htmlFor="q" className="sr-only">{t("admin.clients.search")}</label>
+        <input id="q" name="q" defaultValue={q} placeholder={t("admin.clients.search")} className={fieldControl} />
+        <button className={buttonClass("primary", "px-6")}>{t("admin.clients.searchBtn")}</button>
       </form>
-      {!data?.length ? <p className="text-cocoa">Nenhuma cliente encontrada.</p> : (
+      {!data?.length ? <p className="text-cocoa">{t("admin.clients.none")}</p> : (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[34rem] text-left text-sm">
-            <thead className="text-xs uppercase tracking-[0.15em] text-rose-deep"><tr><th className="py-3">Nome</th><th>Celular</th><th>Ficha</th><th>Cadastro</th></tr></thead>
+            <thead className="text-xs uppercase tracking-[0.15em] text-rose-deep"><tr><th className="py-3">{t("admin.clients.name")}</th><th>{t("admin.clients.phone")}</th><th>{t("admin.clients.intake")}</th><th>{t("admin.clients.since")}</th></tr></thead>
             <tbody className="divide-y divide-line border-y border-line">
               {data.map((c) => (
                 <tr key={c.id} className="hover:bg-ivory">
                   <td className="py-3"><Link className="text-espresso underline underline-offset-4" href={`/admin/clientes/${c.id}`}>{c.full_name}</Link></td>
                   <td>{formatBrazilPhone(c.phone)}</td>
-                  <td>{withIntake.has(c.id) ? "Recebida" : "Pendente"}</td>
-                  <td>{new Date(c.created_at).toLocaleDateString("pt-BR")}</td>
+                  <td>{withIntake.has(c.id) ? t("admin.clients.received") : t("admin.clients.pending")}</td>
+                  <td>{formatDate(c.created_at, t.locale)}</td>
                 </tr>
               ))}
             </tbody>
@@ -60,9 +62,9 @@ export default async function AdminClients({
       )}
       {pages > 1 && (
         <p className="flex items-center gap-4 text-sm">
-          {page > 1 && <Link className="underline" href={`/admin/clientes?q=${encodeURIComponent(q)}&p=${page - 1}`}>Anterior</Link>}
-          <span>Página {page} de {pages}</span>
-          {page < pages && <Link className="underline" href={`/admin/clientes?q=${encodeURIComponent(q)}&p=${page + 1}`}>Próxima</Link>}
+          {page > 1 && <Link className="underline" href={`/admin/clientes?q=${encodeURIComponent(q)}&p=${page - 1}`}>{t("admin.clients.prev")}</Link>}
+          <span>{t("admin.clients.page", { page, pages })}</span>
+          {page < pages && <Link className="underline" href={`/admin/clientes?q=${encodeURIComponent(q)}&p=${page + 1}`}>{t("admin.clients.next")}</Link>}
         </p>
       )}
     </div>
