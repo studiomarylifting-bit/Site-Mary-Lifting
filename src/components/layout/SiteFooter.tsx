@@ -64,18 +64,11 @@ export async function SiteFooter() {
 
       <div className="border-t border-ivory/10">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-5 py-6 text-xs text-sand md:flex-row md:justify-between md:px-10">
-<<<<<<< Updated upstream
-          <p>© {new Date().getFullYear()} {t("brand.name")} · {t("brand.tagline")}. {t("footer.rights")}</p>
-          <p className="flex flex-wrap gap-x-6 gap-y-1">
-            <Link className="inline-block rounded-md py-1 transition-colors hover:text-ivory" href="/privacidade">{t("footer.privacy")}</Link>
-            <Link className="inline-block rounded-md py-1 transition-colors hover:text-ivory" href="/termos">{t("footer.terms")}</Link>
-=======
           <p>© {new Date().getFullYear()} {studio.fullName}</p>
           <p className="flex gap-6">
              <Link className="inline-block rounded-md py-1 transition-colors hover:text-ivory" href="https://www.linkedin.com/in/rafaaelmoraes/">Sobre Direitos Temporários de Rafael Moraes - CNPJ :67.203.896/0001-02</Link>
             <Link className="inline-block rounded-md py-1 transition-colors hover:text-ivory" href="/privacidade">Política de privacidade</Link>
             <Link className="inline-block rounded-md py-1 transition-colors hover:text-ivory" href="/termos">Termos de uso</Link>
->>>>>>> Stashed changes
           </p>
         </div>
       </div>
