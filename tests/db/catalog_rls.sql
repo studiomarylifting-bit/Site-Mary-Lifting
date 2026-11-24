@@ -29,11 +29,12 @@ select tt.expect('anon NÃO insere serviço', tt.try('anon',null,$q$insert into 
 select tt.expect('anon NÃO altera preço', tt.try('anon',null,'update services set price_cents=1'), 'ERRO:42501');
 select tt.expect('anon NÃO apaga', tt.try('anon',null,'delete from services'), 'ERRO:42501');
 select tt.expect('anon NÃO altera image_path', tt.try('anon',null,$q$update services set image_path='servicos/a.webp'$q$), 'ERRO:42501');
-select tt.expect('cliente NÃO altera preço', tt.try('authenticated',:C,'update services set price_cents=1'), 'ERRO:42501');
+select tt.expect('cliente NÃO altera preço (RLS: nenhuma linha afetada)', tt.try('authenticated',:C,'update services set price_cents=1'), 'ok:0');
 select tt.expect('cliente NÃO apaga', tt.try('authenticated',:C,'delete from services'), 'ERRO:42501');
 select tt.expect('cliente: update image_path não afeta nenhuma linha (RLS)', tt.try('authenticated',:C,$q$update services set image_path='servicos/a.webp'$q$), 'ok:0');
-select tt.expect('ADMIN NÃO altera preço pela API (grant por coluna)', tt.try('authenticated',:A,'update services set price_cents=1'), 'ERRO:42501');
-select tt.expect('ADMIN NÃO altera nome', tt.try('authenticated',:A,$q$update services set name='x'$q$), 'ERRO:42501');
+-- (A partir da migration 20261124000002 o admin PODE editar preço; ver catalog_admin_rls.sql.) Colunas sem grant seguem bloqueadas:
+select tt.expect('ADMIN NÃO altera o id (grant por coluna)', tt.try('authenticated',:A,'update services set id=gen_random_uuid()'), 'ERRO:42501');
+select tt.expect('ADMIN NÃO altera o slug (chave)', tt.try('authenticated',:A,$q$update services set slug='x'$q$), 'ERRO:42501');
 select tt.expect('ADMIN NÃO apaga serviço', tt.try('authenticated',:A,'delete from services'), 'ERRO:42501');
 select tt.expect('cliente NÃO se promove a admin', tt.try('authenticated',:C,$q$insert into user_roles(user_id,role) values ('00000000-0000-0000-0000-0000000000bb','admin')$q$), 'ERRO:42501');
 -- ---------- image_path: admin pode, com formato válido
