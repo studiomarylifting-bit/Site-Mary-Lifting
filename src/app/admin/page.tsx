@@ -3,6 +3,7 @@ import { getCatalog } from "@/features/catalog/queries";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { ticketTypeLabels } from "@/lib/validation/schemas";
 import { TicketStatusBadge } from "@/features/sac/TicketStatusBadge";
+import { getAdminCatalog } from "@/features/catalog-admin/queries";
 import { getT } from "@/i18n/server";
 import { formatDate } from "@/i18n/format";
 
@@ -17,7 +18,7 @@ async function count(table: string, filter?: [string, string]) {
 
 export default async function AdminDashboard() {
   const supabase = await createSupabaseServerClient();
-  const [catalog, t] = await Promise.all([getCatalog(), getT()]);
+  const [catalog, t, adminCatalog] = await Promise.all([getCatalog(), getT(), getAdminCatalog()]);
   const [clients, intakes, pendingFeedback, openTickets, privacy] = await Promise.all([
     count("profiles"), count("intake_forms"), count("feedback", ["status", "pending"]),
     count("sac_tickets", ["status", "open"]), count("privacy_requests", ["status", "received"]),
@@ -50,6 +51,46 @@ export default async function AdminDashboard() {
           </li>
         ))}
       </ul>
+      <section aria-labelledby="gerenciar" className="space-y-6">
+        <div>
+          <h2 id="gerenciar" className="text-3xl">{t("admin.dash.manage")}</h2>
+          <p className="mt-1 text-sm text-cocoa">{t("admin.dash.manageLead")}</p>
+        </div>
+        <ul className="grid gap-4 sm:grid-cols-3">
+          {[
+            { href: "/admin/catalogo", title: t("admin.dash.catalogCard"), text: t("admin.dash.catalogCardText") },
+            { href: "/admin/catalogo/nova", title: t("admin.dash.newCatalog"), text: t("admin.dash.newCatalogText") },
+            { href: "/admin/imagens", title: t("admin.dash.imagesCard"), text: t("admin.dash.imagesCardText") },
+          ].map((c) => (
+            <li key={c.href}>
+              <Link href={c.href} className="block h-full rounded-card bg-ivory p-5 shadow-soft transition duration-300 hover:-translate-y-0.5 hover:shadow-lift motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+                <p className="font-display text-2xl text-espresso">{c.title}</p>
+                <p className="mt-2 text-sm text-cocoa">{c.text}</p>
+              </Link>
+            </li>
+          ))}
+        </ul>
+        {adminCatalog.ready && adminCatalog.categories.length > 0 && (
+          <div>
+            <h3 className="text-xl text-espresso">{t("admin.dash.catalogs")}</h3>
+            <ul className="mt-3 divide-y divide-line border-y border-line">
+              {adminCatalog.categories.map((c) => (
+                <li key={c.slug} className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 py-3">
+                  <span className="min-w-0">
+                    <span className="text-espresso">{c.title}</span>
+                    {!c.active && <span className="ml-2 rounded-full bg-blush px-2.5 py-0.5 text-xs text-rose-deep">{t("admin.dash.archivedTag")}</span>}
+                    <span className="block text-sm text-cocoa">{t("admin.dash.procedures", { n: adminCatalog.services.filter((s) => s.category_slug === c.slug && s.active).length })}</span>
+                  </span>
+                  <span className="flex flex-wrap gap-2 text-sm">
+                    <Link href={`/admin/catalogo/${c.slug}`} className="inline-flex min-h-11 items-center rounded-full border border-stroke px-4 text-espresso hover:bg-nude/60">{t("admin.dash.manageProcedures")}</Link>
+                    <Link href={`/admin/catalogo/${c.slug}/novo`} className="inline-flex min-h-11 items-center rounded-full bg-espresso px-4 text-ivory hover:bg-cocoa">{t("admin.dash.addProcedure")}</Link>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </section>
       <section aria-labelledby="recentes">
         <h2 id="recentes" className="text-3xl">{t("admin.dash.recent")}</h2>
         {!recent?.length ? <p className="mt-4 text-cocoa">{t("admin.dash.noRecent")}</p> : (
