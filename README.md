@@ -64,4 +64,4 @@ Fonte única: `src/features/catalog/data.ts` (valores em centavos). A lista info
 
 ## Documentação
 
-- [Teste local](docs/TESTE-LOCAL.md) · [Design](docs/DESIGN.md) · [Idiomas e temas](docs/I18N-TEMAS.md) · [Catálogo e imagens](docs/CATALOGO-IMAGENS.md) · [Revisão do FAQ](docs/FAQ-REVISAO.md) · [Setup](docs/SETUP.md) · [Segurança](docs/SECURITY.md) · [Privacidade e LGPD](docs/PRIVACY.md) · [Integrações](docs/INTEGRATIONS.md) · [Testes e estado de validação](docs/TESTING.md)
+- [Teste local](docs/TESTE-LOCAL.md) · [Design](docs/DESIGN.md) · [Idiomas e temas](docs/I18N-TEMAS.md) · [Admin e imagens](docs/ADMIN-IMAGENS.md) · [Catálogo e imagens](docs/CATALOGO-IMAGENS.md) · [Revisão do FAQ](docs/FAQ-REVISAO.md) · [Setup](docs/SETUP.md) · [Segurança](docs/SECURITY.md) · [Privacidade e LGPD](docs/PRIVACY.md) · [Integrações](docs/INTEGRATIONS.md) · [Testes e estado de validação](docs/TESTING.md)

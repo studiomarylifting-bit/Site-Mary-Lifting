@@ -32,6 +32,8 @@ const supabaseHost = (() => {
 const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
+  // Envio de imagens pelo painel admin (limite de 4 MB por arquivo é validado na ação).
+  experimental: { serverActions: { bodySizeLimit: "6mb" } },
     images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [

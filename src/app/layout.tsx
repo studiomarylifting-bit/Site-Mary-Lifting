@@ -1,12 +1,14 @@
 import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Jost } from "next/font/google";
-import { SiteHeader } from "@/components/layout/SiteHeader";
+import { SiteHeader, type Viewer } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { getSiteUrl } from "@/lib/env";
 import { I18nProvider } from "@/i18n/client";
 import { localeMeta } from "@/i18n/config";
 import { dictionary } from "@/i18n/messages";
 import { getT } from "@/i18n/server";
+import { getSiteImages } from "@/features/site-images/queries";
+import { getSessionUser, isAdminUser } from "@/server/policies/authz";
 import { themeInitScript } from "@/components/layout/theme-script";
 import { studio } from "@/lib/studio";
 import "./globals.css";
@@ -26,7 +28,7 @@ const sans = Jost({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getT();
+  const [t, images] = await Promise.all([getT(), getSiteImages()]);
   return {
     metadataBase: new URL(getSiteUrl()),
     title: {
@@ -39,8 +41,8 @@ export async function generateMetadata(): Promise<Metadata> {
     // Favicon que acompanha o tema do navegador (aba clara ou escura).
     icons: {
       icon: [
-        { url: "/brand/icon-light.png", type: "image/png", media: "(prefers-color-scheme: light)" },
-        { url: "/brand/icon-dark.png", type: "image/png", media: "(prefers-color-scheme: dark)" },
+        { url: images.faviconLight, media: "(prefers-color-scheme: light)" },
+        { url: images.faviconDark, media: "(prefers-color-scheme: dark)" },
       ],
     },
   };
@@ -56,8 +58,9 @@ export const viewport: Viewport = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const t = await getT();
+  const [t, images, user] = await Promise.all([getT(), getSiteImages(), getSessionUser()]);
   const locale = t.locale;
+  const viewer: Viewer = !user ? "guest" : (await isAdminUser(user.id)) ? "admin" : "client";
   return (
     // suppressHydrationWarning: o script do tema altera data-theme antes da hidratação.
     <html lang={localeMeta[locale].htmlLang} className={`${display.variable} ${sans.variable}`} suppressHydrationWarning>
@@ -67,7 +70,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className="flex min-h-dvh flex-col">
         <I18nProvider locale={locale} messages={dictionary[locale]}>
           <a href="#conteudo" className="skip-link">{t("skip")}</a>
-          <SiteHeader />
+          <SiteHeader viewer={viewer} brand={{ light: images.logoLight, dark: images.logoDark }} />
           <main id="conteudo" className="flex-1">{children}</main>
           <SiteFooter />
         </I18nProvider>

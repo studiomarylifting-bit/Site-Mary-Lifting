@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getSessionUser } from "@/server/policies/authz";
+import { getSessionUser, isAdminUser } from "@/server/policies/authz";
 import { Container } from "@/components/shared/PageHero";
 import { getT } from "@/i18n/server";
 
@@ -23,6 +23,8 @@ export default async function AccountLayout({ children }: { children: React.Reac
   // Segunda barreira (o middleware é a primeira): a página nunca depende só dele.
   const user = await getSessionUser();
   if (!user) redirect("/entrar?next=/conta");
+  // A administradora tem ambiente próprio (/admin); /conta é só da cliente.
+  if (await isAdminUser(user.id)) redirect("/admin");
   const t = await getT();
 
   return (
