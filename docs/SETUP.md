@@ -38,3 +38,9 @@ Sem a service role, os formulários de SAC e feedback respondem 429 de propósit
 
 ## 5. Deploy
 Não há deploy automatizado neste repositório. Use HTTPS (o HSTS já é enviado) e cadastre as variáveis no provedor, nunca em arquivo versionado.
+
+## Criar o primeiro admin (Marina Silva) e um cliente de teste
+1. Abra `supabase/create_users.sql`, troque os valores `TROQUE_` (e-mails e senhas) e rode no **SQL Editor** do Supabase.
+2. O script confirma o e-mail, cria o perfil (gatilho) e grava o papel `admin` em `user_roles`. É idempotente.
+3. Entre em `/entrar`: a Marina cai em `/admin`; o cliente cai em `/conta`.
+4. Não commite o arquivo com senhas reais. Troque as senhas após o primeiro acesso (`/recuperar-senha`).
